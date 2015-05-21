@@ -110,6 +110,13 @@ Star.prototype.tick = function(iterations) {
 							drawRoute: false
 						});
 						_this.bodies.push(dust);
+						(function(obj){
+							setTimeout(function(){
+							createjs.Tween.get(obj.shape, {override: true}).to({scaleX: 0}, 500).call(function(){
+								_this.bodiesToRemove.push(obj);
+							});
+						}, utils.getRandomInt(5000, 25000));
+						})(dust);
 					}
 
 					_this.bodiesToRemove.push(obj1, obj2);
@@ -149,7 +156,7 @@ Star.prototype.listen = function() {
 		sizeMarker.graphics.clear();
 		Star.self.bgScene.addChild(sizeMarker);
 		createjs.Tween.get(sizeMarker).wait(2500).to({alpha: 0}, 1000).call(function(){
-			Star.self.bgScele.removeChild(sizeMarker);
+			Star.self.bgScene.removeChild(sizeMarker);
 		});
 	});
 	this.stage.on("stagemousemove", function(e) {});
