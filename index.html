@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Stardust</title>
+
+    <script src="libs/jquery-1.11.1.min.js"></script>
+    <script src="libs/easeljs.min.js"></script>
+    <script src="libs/tweenjs-0.5.1.min.js"></script>
+    <script src="scripts/Utils.js"></script>
+    <script src="scripts/Keys.js"></script>
+    <script src="scripts/Planet.js"></script>
+    <script src="scripts/Engine.js"></script>
+
+    <script>
+        $(document).on("ready", function () {
+            window.app = new Star("mainCanvas", "bgCanvas");
+            createjs.Ticker.timingMode = createjs.Ticker.RAF;
+            app.run();
+            $(window).on("load resize", function () {
+              $("#mainCanvas, #bgCanvas").attr({
+                "width":  window.innerWidth,
+                "height": window.innerHeight
+              });
+            });
+        });
+    </script>
+
+    <link href="styles.css" rel="stylesheet"/>
+</head>
+<body oncontextmenu="return false;">
+<canvas id="bgCanvas" class="noselect" width="550" height="400"></canvas>
+<canvas id="mainCanvas" class="noselect" width="550" height="400"></canvas>
+</body>
+</html>
