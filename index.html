@@ -1,35 +1,88 @@
 <!DOCTYPE html>
 <html>
+
 <head lang="en">
     <meta charset="UTF-8">
     <title>Stardust</title>
 
-    <script src="libs/jquery-1.11.1.min.js"></script>
-    <script src="libs/easeljs.min.js"></script>
-    <script src="libs/tweenjs-0.5.1.min.js"></script>
-    <script src="scripts/Utils.js"></script>
-    <script src="scripts/Keys.js"></script>
-    <script src="scripts/Planet.js"></script>
-    <script src="scripts/Engine.js"></script>
+    <script src="js/libs/jquery-1.11.1.min.js"></script>
+    <script src="js/libs/easeljs-0.8.0.combined.js"></script>
+    <script src="js/libs/webgl-NEXT.min.js"></script>
+    <script src="js/libs/tweenjs-0.5.1.min.js"></script>
+    <script src="js/Utils.js"></script>
+    <script src="js/Keys.js"></script>
+    <script src="js/Arrow.js"></script>
+    <script src="js/Planet.js"></script>
+    <script src="js/Engine.js"></script>
 
     <script>
-        $(document).on("ready", function () {
-            window.app = new Star("mainCanvas", "bgCanvas");
-            createjs.Ticker.timingMode = createjs.Ticker.RAF;
+        $(document).on("ready", function() {
+            window.app = new Star("mainCanvas");
             app.run();
-            $(window).on("load resize", function () {
-              $("#mainCanvas, #bgCanvas").attr({
-                "width":  window.innerWidth,
-                "height": window.innerHeight
-              });
+            $(window).on("load resize", function() {
+                $("#mainCanvas").attr({
+                    "width": window.innerWidth,
+                    "height": window.innerHeight
+                });
             });
+            setInterval(function() {
+                var ms = app.tickTime,
+                    fps = 1000 / ms,
+                    nplanets = app.physicsBodies.length;
+
+                fps = fps < Infinity ? fps : "infinite ";
+
+                $("#fps").html(fps.toFixed(1));
+                $("#ms").html(ms.toFixed(1));
+                $("#nplanets").html(nplanets);
+
+                $("#fps, #ms").attr("class", fps < 23 ? "red" : fps < 59 ? "yellow" : "green");
+            }, 1000 / 3);
         });
     </script>
 
-    <link href="styles.css" rel="stylesheet"/>
+    <link href="css/styles.css" rel="stylesheet" />
 </head>
+
 <body oncontextmenu="return false;">
-<canvas id="bgCanvas" class="noselect" width="550" height="400"></canvas>
-<canvas id="mainCanvas" class="noselect" width="550" height="400"></canvas>
+    <canvas id="mainCanvas" class="noselect" width="550" height="400"></canvas>
+
+    <div id="properties">
+        <h1 contenteditable="true" spellcheck="false" oninput="app.selectedObj.physicsBody.name = this.innerHTML;" class="title planetName">Sphynx</h1>
+        <input id="increase" class="green bold" type="button" value="+" onclick="app.selectedObj.physicsBody.setRadius(app.selectedObj.physicsBody.getRadius() + 5, true);"/>
+        <hr/>
+        <div class="content">
+            <input id="follow" type="checkbox"/>
+            <label class="noselect" for="follow">Follow</label>
+            <br/>
+            <br/>
+            <input id="movable" type="checkbox" checked onchange="app.selectedObj.physicsBody.movable = !app.selectedObj.physicsBody.movable;"/>
+            <label class="noselect" for="movable">Movable</label>
+            <br/>
+            <input id="collidable" type="checkbox" checked onchange="app.selectedObj.physicsBody.collidable = !app.selectedObj.physicsBody.collidable;"/>
+            <label class="noselect" for="collidable">Collidable</label>
+            <br/>
+            <input id="fusionable" type="checkbox" checked onchange="app.selectedObj.physicsBody.fusionable = !app.selectedObj.physicsBody.fusionable;"/>
+            <label class="noselect" for="fusionable">Fusionable</label>
+            <br/>
+            <br/>
+            <input id="atmosphere" type="checkbox"/>
+            <label class="noselect" for="atmosphere">Atmosphere</label>
+            <br/>
+            <br/>
+            <input id="precision" class="blue bold" type="button" value="Enter precision mode"/>
+            <br/>
+            <br/>
+            <input id="delete" class="red bold" type="button" value="Delete" onclick="app.trashQueue.push(app.selectedObj);"/>
+        </div>
+    </div>
+
+    <div id="debugInfo">
+        <span id="nplanets">0</span> planet(s) on stage
+        <br/> Running at
+        <span id="fps">60.0</span>fps
+        (<span id="ms">16.6</span>ms)
+    </div>
 </body>
+
 </html>
