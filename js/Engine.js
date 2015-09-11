@@ -46,13 +46,6 @@ SDU.GameScene.prototype.listen = function() {
 		_this.step();
 		_this.update();
 		_listenMouseMove();
-		if (true) { // Just for folding purposes.
-			$("#fps").html((1000 / _this.delta).toFixed(1));
-			$("#ms").html((_this.delta).toFixed(1));
-			$("#nplanets").html(_this.bodies.length);
-			$("#pairs").html(_this.gcIterations);
-			$("#algorithm").html(1000 / _this.delta < 50 ? "FAST" : "SLOW");
-		}
 	});
 	_this.addEventListener("stagemousedown", function(e) {
 		_this.mouse.down = {
