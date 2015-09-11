@@ -1,287 +1,223 @@
-var Star = function(canvas) {
+var SDU = SDU || {};
+SDU.GameScene = function(canvas) {
 	this.canvas = document.getElementById(canvas);
-	this.stage = new createjs.Stage(this.canvas);
-	this.scene = new createjs.Container();
-	this.route = new createjs.Shape();
-	this.physicsBodies = [];
-	this.trashQueue = [];
-	this.palette = ["#FF4650", "#FFD939", "#97FB32", "#32CEF4", "#FE60D6"];
-	this.planetNames = ["Sphynx", "Chausie", "Raas", "Sokoke", "Chartreux", "Cymric", "Lykoi"];
-	this.selectedObj = null;
-	this.init = (function(self) {
-		createjs.Ticker.timingMode = createjs.Ticker.RAF;
-		Star.self = self;
+	this.SDUScene_constructor(canvas);
+	this.bodies = [];
+	this.collisions = [];
+	this.garbage = [];
+	this.palette = {
+		dark: ["#FF4650", "#FFD939", "#97FB32", "#32CEF4", "#FE60D6"],
+		light: ["#CF7758", "#9FB6A3", "#A878A6", "#7D8FA6", "#B04C56", "#3D4754", "#3D4754"]
+	};
+	SDU.GameScene.self = this;
 
-		self.route.cache(0, 0, window.innerWidth, window.innerHeight);
-		self.route.compositeOperation = "destination-atop";
-		self.route.alpha = 0.05;
-
-		self.stage.addChild(self.scene);
-		self.scene.addChild(self.route);
-	})(this);
-};
-Star.prototype.config = {};
-Star.prototype.tickTime = 0;
-Star.prototype.run = function() {
-	for (var i1 = 0; i1 < 15; i1++) {
-		for (var i2 = 0; i2 < 7; i2++) {
-			var planet = new Planet(this, 720 / 15 * i1, 480 / 7 * i2, 5, "#67676f", {
-				name: Star.self.planetNames.getRandomItem(),
-				density: 1
-			}, this.scene);
-			this.physicsBodies.push(planet);
-		}
-	}
-	this.tick(0, 0);
+	this.setup();
 	this.listen();
 };
-Star.prototype.tick = function(iterations, delta) {
-	var now = performance.now();
-
-	for (var i = 0; i < 1; i++) {
-		Star.self.step(now - delta);
-	}
-	Star.self.stage.update();
-	if (Star.self.selectedObj) {
-		$("#properties").show();
-		$("#properties .planetName").html(Star.self.selectedObj.physicsBody.name);
-		$("#properties > h1.title").css({
-			"border-color": Star.self.selectedObj.physicsBody.color
-		});
-		$("#properties").css({
-			top: Star.self.selectedObj.physicsBody.y + Star.self.selectedObj.physicsBody.radius + 5,
-			left: Star.self.selectedObj.physicsBody.x - 120
-		});
-	} else {
-		$("#properties").hide();
-	}
-
-	now = performance.now();
-	Star.self.tickTime = now - delta;
-
-	requestAnimationFrame(function() {
-		Star.self.tick(iterations, now);
-	});
-};
-Star.prototype.step = function(delta) {
-	this.physicsBodies.forEach(function(obj) {
-		obj.physicsBody.px = obj.physicsBody.x;
-		obj.physicsBody.py = obj.physicsBody.y;
-
-		if (obj.physicsBody.movable) {
-			obj.physicsBody.x += /*delta / 1000 **/ (obj.physicsBody.vx / 100); // TODO: Time based.
-			obj.physicsBody.y += /*delta / 1000 **/ (obj.physicsBody.vy / 100);
-		}
-		if (obj.physicsBody.drawRoute && obj.physicsBody.radius > 1.5) {
-			this.route.graphics.s("#FFF").ss(3, "round").mt(obj.physicsBody.px, obj.physicsBody.py).lt(obj.physicsBody.x, obj.physicsBody.y);
-			this.route.updateCache("source-overlay");
-			this.route.graphics.clear();
-		}
-	}, this);
-	this.physicsBodies.forEach(function(obj1) {
-		if (obj1.physicsBody.affectedByGravity && obj1.physicsBody.movable) {
-			this.physicsBodies.forEach(function(obj2) {
-				if (obj1 !== obj2 && obj1.physicsBody.antecessors.indexOf(obj2) < 0 && obj2.physicsBody.antecessors.indexOf(obj1) < 0) {
-
-					var diffX = obj2.physicsBody.x - obj1.physicsBody.x,
-						diffY = obj2.physicsBody.y - obj1.physicsBody.y;
-					var distSquare = diffX * diffX + diffY * diffY;
-					var dist = Math.sqrt(distSquare);
-					var distanceToLine = utils.distToSegment(obj2.physicsBody, {
-						x: obj1.physicsBody.px,
-						y: obj1.physicsBody.py
-					}, {
-						x: obj1.physicsBody.x,
-						y: obj1.physicsBody.y
-					});
-
-					if (distanceToLine > obj1.physicsBody.radius + obj2.physicsBody.radius) {
-
-						var force = obj2.physicsBody.getMass() / distSquare;
-						obj1.physicsBody.vx += force * diffX / dist * obj2.physicsBody.attraction;
-						obj1.physicsBody.vy += force * diffY / dist * obj2.physicsBody.attraction;
-
-					} else if (obj1.physicsBody.collidable && obj2.physicsBody.collidable) { // FIXME: obj3 is created during the loop, compromisind symmetry and precision on programmatically made systems.
-						if (obj1.physicsBody.fusionable && obj2.physicsBody.fusionable && utils.getAverage(obj1.physicsBody.attraction, obj2.physicsBody.attraction) >= 0) {
-
-							var massCenterX = (obj1.physicsBody.getMass() * obj1.physicsBody.x + obj2.physicsBody.getMass() * obj2.physicsBody.x) / (obj1.physicsBody.getMass() + obj2.physicsBody.getMass()),
-								massCenterY = (obj1.physicsBody.getMass() * obj1.physicsBody.y + obj2.physicsBody.getMass() * obj2.physicsBody.y) / (obj1.physicsBody.getMass() + obj2.physicsBody.getMass());
-
-							var collisionPointX = (obj1.physicsBody.x * obj2.physicsBody.radius + obj2.physicsBody.x * obj1.physicsBody.radius) / (obj1.physicsBody.radius + obj2.physicsBody.radius),
-								collisionPointY = (obj1.physicsBody.y * obj2.physicsBody.radius + obj2.physicsBody.y * obj1.physicsBody.radius) / (obj1.physicsBody.radius + obj2.physicsBody.radius);
-
-							var biggestRadius = Math.max(obj1.physicsBody.radius, obj2.physicsBody.radius),
-								biggestObj = obj1.physicsBody.radius > obj2.physicsBody.radius ? obj1 : (obj1.physicsBody.radius < obj2.physicsBody.radius) ? obj2 : null,
-								biggestDensity = Math.max(obj1.physicsBody.density, obj2.physicsBody.density);
-
-							var isBlackHole = biggestDensity === 500,
-								color = isBlackHole ? "#1A212A" : this.palette.getRandomItem(),
-								shadow = isBlackHole ? new createjs.Shadow("#383F49", 0, 0, 5) : null;
-
-							var area = obj1.physicsBody.getArea() * (obj1.physicsBody.density / biggestDensity) + obj2.physicsBody.getArea() * (obj2.physicsBody.density / biggestDensity),
-								radius = Math.sqrt(area / Math.PI),
-								vx = (obj1.physicsBody.getMass() * obj1.physicsBody.vx + obj2.physicsBody.getMass() * obj2.physicsBody.vx) / (obj1.physicsBody.getMass() + obj2.physicsBody.getMass()),
-								vy = (obj1.physicsBody.getMass() * obj1.physicsBody.vy + obj2.physicsBody.getMass() * obj2.physicsBody.vy) / (obj1.physicsBody.getMass() + obj2.physicsBody.getMass());
-
-							var obj3 = new Planet(this, massCenterX, massCenterY, radius, color, {
-								name: biggestObj ? biggestObj.physicsBody.name : this.planetNames.getRandomItem(),
-								vx: vx,
-								vy: vy,
-								scaleX: biggestRadius / radius,
-								scaleY: biggestRadius / radius,
-
-								density: biggestDensity,
-								movable: (obj1.physicsBody.movable && obj2.physicsBody.movable),
-								antecessors: [obj1, obj2],
-
-								shadow: shadow,
-								compositeOperation: "overlay"
-							}, this.scene, 1.3);
-							this.physicsBodies.push(obj3);
-							createjs.Tween.get(obj3.physicsBody, {
-								override: true
-							}).to({
-								scaleX: 1,
-								scaleY: 1
-							}, 1000, createjs.Ease.elasticOut);
-
-							if (this.selectedObj === obj1 || this.selectedObj === obj2) {
-								this.selectedObj = obj3;
-							}
-
-							obj1.physicsBody.attraction = 0;
-							obj2.physicsBody.attraction = 0;
-
-							this.trashQueue.push(obj1, obj2);
-							obj1.physicsBody.collidable = obj2.physicsBody.collidable = false;
-						} else {
-							// TODO: Perfectly inelastic circle collision.
-						}
-					}
-				}
+createjs.extend(SDU.GameScene, SDU.Scene);
+SDU.GameScene.prototype.setup = function() {
+	/*for (var i1 = 0; i1 < 10; ++i1) {
+		for (var i2 = 0; i2 < 10; ++i2) {
+			var planet = new SDU.Planet(50 + i1 * 25, 50 + i2 * 25, 5, this.palette.light.getRandomItem(), {
+				density: 1,
+				attraction: 1
 			}, this);
 		}
-	}, this);
-	this.trashQueue.forEach(function(obj) {
-		if (this.selectedObj === obj) this.selectedObj = null;
-		var index = this.physicsBodies.indexOf(obj);
-		if (index > -1) {
-			this.physicsBodies.splice(index, 1);
-		}
-		this.scene.removeChild(obj.physicsBody);
-		index = this.trashQueue.indexOf(obj);
-		if (index > -1) {
-			this.trashQueue.splice(index, 1);
-		}
-	}, this);
-};
-Star.prototype.listen = function() {
-	var mouse = {
-		x: 0,
-		y: 0,
-		down: false,
-		indicator: {
-			size: null,
-			speed: []
-		}
-	};
-
-	for (var i = 0; i < 3; i++) {
-		var speed = new Arrow(0, 0, 5, 10, null, "#FFF", 1);
-		speed.shape.alpha = 0;
-		speed.shape.regX = -10 + (i * -7);
-		mouse.indicator.speed.push(speed);
+	}*/
+	for (var i = 0; i < 500; ++i) {
+		var planet = new SDU.Planet(utils.getRandomInt(0, window.innerWidth), utils.getRandomInt(0, window.innerHeight), 5, this.palette.light.getRandomItem(), {}, this);
 	}
 
-	this.stage.on("stagemousedown", function(e) {
-		mouse.down = true;
-		mouse.x = e.stageX;
-		mouse.y = e.stageY;
-
-		var objUnderPoint;
-		this.physicsBodies.forEach(function(obj) {
-			var diffX = obj.physicsBody.x - mouse.x,
-				diffY = obj.physicsBody.y - mouse.y;
-			var distSquare = diffX * diffX + diffY * diffY;
-			var dist = Math.sqrt(distSquare);
-			if (dist < obj.physicsBody.radius + 5) {
-				if (!objUnderPoint || this.scene.indexOf(objUnderPoint) < this.scene.indexOf(obj)) {
-					objUnderPoint = obj;
-				}
-			}
-		});
-
-		if (objUnderPoint) {
-			this.selectedObj = objUnderPoint;
-		} else if (this.selectedObj) {
-			this.selectedObj = null;
-		} else {
-			for (var i = 0; i < mouse.indicator.speed.length; i++) {
-				Star.self.scene.addChild(mouse.indicator.speed[i].shape);
-				mouse.indicator.speed[i].shape.set({
-					x: mouse.x,
-					y: mouse.y
-				});
-			}
-
-			var size = new createjs.Shape();
-			size.graphics.s("#FFF").dc(0.5, 0.5, 5);
-			size.x = mouse.x;
-			size.y = mouse.y;
-			size.cache(-6, -6, 12, 12);
-			mouse.indicator.size = size;
-			this.scene.addChild(mouse.indicator.size);
-		}
-	}, this);
-	this.stage.on("stagemousemove", function(e) {
-		if (mouse.down) {
-			if (!this.selectedObj) {
-				var diffX = e.stageX - mouse.x,
-					diffY = e.stageY - mouse.y;
-				var distSquare = diffX * diffX + diffY * diffY;
-				var dist = Math.sqrt(distSquare);
-
-				for (var i = 0; i < mouse.indicator.speed.length; i++) {
-					mouse.indicator.speed[i].shape.alpha = (dist - 5 - i * 100) / ((i + 1) * 100);
-					mouse.indicator.speed[i].pointTo(e.stageX, e.stageY);
-				}
-			}
-		}
-	}, this);
-	this.stage.on("stagemouseup", function(e) {
-		if (mouse.down) {
-			mouse.down = false;
-
-			if (mouse.indicator.size) {
-				var vx = e.stageX - mouse.x,
-					vy = e.stageY - mouse.y;
-				var color = key.isDown(key.SHIFT) ? "#1A212A" : this.palette.getRandomItem();
-
-				var obj = new Planet(this, mouse.x, mouse.y, 5, color, {
-					name: Star.self.planetNames.getRandomItem(),
-					vx: vx,
-					vy: vy,
-					scaleX: 0,
-					scaleY: 0,
-					density: key.isDown(key.SHIFT) ? 500 : 1,
-					shadow: key.isDown(key.SHIFT) ? new createjs.Shadow("#383F49", 0, 0, 5) : null,
-					compositeOperation: "overlay"
-				}, this.scene);
-				this.physicsBodies.push(obj);
-				createjs.Tween.get(obj.physicsBody, {
-					override: true
-				}).to({
-					scaleX: 1,
-					scaleY: 1
-				}, 1000, createjs.Ease.elasticOut);
-
-				for (var i = 0; i < mouse.indicator.speed.length; i++) {
-					mouse.indicator.speed[i].shape.alpha = 0;
-					Star.self.scene.removeChild(mouse.indicator.speed[i].shape);
-				}
-				this.scene.removeChild(mouse.indicator.size);
-				mouse.indicator.size = null;
-			}
-		}
-	}, this);
+	//var p1 = new SDU.Planet(50, 50, 5, this.palette.getRandomItem(), {}, this);
+	//var p2 = new SDU.Planet(100, 50, 10, this.palette.getRandomItem(), {}, this);
 };
+SDU.GameScene.prototype.pastTickStart = performance.now();
+SDU.GameScene.prototype.gcIterations = 0;
+SDU.GameScene.prototype.delta = 0;
+SDU.GameScene.prototype.listen = function() {
+	var _this = this,
+		preview;
+	_this.mouse.down = false;
+	createjs.Touch.enable(this);
+	createjs.Ticker.timingMode = createjs.Ticker.RAF;
+	createjs.Ticker.addEventListener("tick", function() {
+		_this.delta = performance.now() - _this.pastTickStart;
+		_this.pastTickStart = performance.now();
+		_this.step();
+		_this.update();
+		_listenMouseMove();
+		if (true) { // Just for folding purposes.
+			$("#fps").html((1000 / _this.delta).toFixed(1));
+			$("#ms").html((_this.delta).toFixed(1));
+			$("#nplanets").html(_this.bodies.length);
+			$("#pairs").html(_this.gcIterations);
+			$("#algorithm").html(1000 / _this.delta < 50 ? "FAST" : "SLOW");
+		}
+	});
+	_this.addEventListener("stagemousedown", function(e) {
+		_this.mouse.down = {
+			x: e.stageX,
+			y: e.stageY
+		};
+		preview = new SDU.Planet(_this.mouse.down.x, _this.mouse.down.y, 5, null, {
+			movable: false,
+			collidable: false,
+			attraction: 0
+		}, _this);
+		preview.setStroke("#3D4754", 2);
+		preview.redraw();
+	});
+
+	function _listenMouseMove() {
+		if (_this.mouse.down) {}
+	}
+	_this.addEventListener("stagemouseup", function(e) {
+		if (preview) _this.garbage.push(preview);
+		var diffX = e.stageX - _this.mouse.down.x,
+			diffY = e.stageY - _this.mouse.down.y,
+			distSquare = diffX * diffX + diffY * diffY,
+			dist = Math.sqrt(distSquare),
+			angle = Math.atan2(e.stageY - _this.mouse.down.y, e.stageX - _this.mouse.down.x);
+
+		var planet = new SDU.Planet(_this.mouse.down.x, _this.mouse.down.y, 5, _this.palette.light.getRandomItem(), {
+			vx: dist * 2 * Math.cos(angle),
+			vy: dist * 2 * Math.sin(angle)
+		}, _this);
+		planet.scaleX = planet.scaleY = 0;
+		createjs.Tween.get(planet, {
+			override: true
+		}).to({
+			scaleX: 1,
+			scaleY: 1
+		}, 1000, createjs.Ease.elasticOut);
+		_this.mouse.down = false;
+	});
+};
+SDU.GameScene.prototype.step = function() {
+	var obj, obj1, obj2, obj3,
+		i, i1, i2, i3, i4;
+	for (i = 0; i < this.bodies.length; ++i) {
+		obj = this.bodies[i];
+		if (obj.movable) {
+			obj.px = obj.x;
+			obj.py = obj.y;
+			obj.x += obj.vx / 500;
+			obj.y += obj.vy / 500;
+		}
+	}
+	this.gcIterations = 0;
+	for (i1 = 0; i1 < this.bodies.length; ++i1) {
+		obj1 = this.bodies[i1];
+		for (i2 = i1 + 1; i2 < this.bodies.length; ++i2) {
+			obj2 = this.bodies[i2];
+			if (obj1 !== obj2) {
+				++this.gcIterations;
+
+				var diffX = obj2.x - obj1.x,
+					diffY = obj2.y - obj1.y,
+					distSquare, dist;
+
+				if (1000 / this.delta < 50)
+					distSquare = diffX * diffX + diffY * diffY;
+				else distSquare = Math.min(utils.distToSegmentSquared(obj2, {
+					x: obj1.px,
+					y: obj1.py
+				}, obj1), utils.distToSegmentSquared(obj1, {
+					x: obj2.px,
+					y: obj2.py
+				}, obj2));
+
+				if (distSquare > utils.sqr(obj1.getRadius() + obj2.getRadius())) {
+					dist = Math.sqrt(distSquare);
+
+					if (obj1.affectedByGravity) {
+						var force1 = obj2.getMass() / distSquare * obj2.attraction;
+						obj1.vx += force1 * diffX / dist;
+						obj1.vy += force1 * diffY / dist;
+					}
+					if (obj2.affectedByGravity) {
+						var force2 = obj1.getMass() / distSquare * obj1.attraction;
+						obj2.vx -= force2 * diffX / dist;
+						obj2.vy -= force2 * diffY / dist;
+					}
+				} else if (obj1.collidable && obj2.collidable) {
+					var alreadyHadCollisions = false,
+						collisionIndex = -1;
+					i3 = this.collisions.length;
+					while (i3--) {
+						var collision = this.collisions[i3],
+							index1 = collision.indexOf(obj1),
+							index2 = collision.indexOf(obj2);
+
+						if (index1 > -1 && index2 === -1)
+							collision.push(obj2);
+						else if (index1 === -1 && index2 > -1)
+							collision.push(obj1);
+
+						// Following code is a fix for [[obj1, obj3], [obj2, obj4]].
+						if (alreadyHadCollisions && (index1 > -1 || index2 > -1)) {
+							for (i4 = 0; i4 < this.collisions[collisionIndex].length; ++i4) {
+								obj3 = this.collisions[collisionIndex][i4];
+								if (obj3 !== obj1 && obj3 !== obj2) collision.push(obj3);
+							}
+							this.collisions.splice(collisionIndex, 1);
+						}
+
+						if (index1 > -1 || index2 > -1) {
+							alreadyHadCollisions = true;
+							collisionIndex = i3;
+						}
+					}
+					if (!alreadyHadCollisions) this.collisions.push([obj1, obj2]);
+				}
+			}
+		}
+	}
+	for (i1 = 0; i1 < this.collisions.length; ++i1) {
+		var targets = this.collisions[i1],
+			biggestRadius, scaleFactor;
+		obj1 = targets[0];
+		biggestRadius = obj1.getRadius();
+		for (i2 = 1; i2 < targets.length; ++i2) {
+			obj2 = targets[i2];
+			var density = Math.max(obj1.density, obj2.density),
+				area = obj1.getArea() * (obj1.density / density) + obj2.getArea() * (obj2.density / density);
+
+			obj1.x = (obj1.getMass() * obj1.x + obj2.getMass() * obj2.x) / (obj1.getMass() + obj2.getMass());
+			obj1.y = (obj1.getMass() * obj1.y + obj2.getMass() * obj2.y) / (obj1.getMass() + obj2.getMass());
+			obj1.vx = (obj1.getMass() * obj1.vx + obj2.getMass() * obj2.vx) / (obj1.getMass() + obj2.getMass());
+			obj1.vy = (obj1.getMass() * obj1.vy + obj2.getMass() * obj2.vy) / (obj1.getMass() + obj2.getMass());
+
+			obj1.setArea(area); // Setting obj1's area must happen after calculating velocity!
+			biggestRadius = Math.max(obj2.getRadius(), biggestRadius);
+			obj1.attraction = Math.max(obj1.attraction, obj2.attraction);
+
+			this.garbage.push(obj2);
+		}
+		obj1.setColor(this.palette.light.getRandomItem());
+		obj1.redraw();
+		if (1000 / this.delta >= 30) {
+			scaleFactor = biggestRadius / obj1.getRadius();
+			obj1.scaleX = obj1.scaleY = scaleFactor;
+			createjs.Tween.get(obj1, {
+				override: true
+			}).to({
+				scaleX: 1,
+				scaleY: 1
+			}, 1000, createjs.Ease.elasticOut);
+		}
+	}
+	this.collisions = [];
+	for (i = 0; i < this.garbage.length; ++i) {
+		obj = this.garbage[i];
+
+		var index = this.bodies.indexOf(obj);
+		if (index > -1)
+			this.bodies.splice(index, 1);
+		else throw new Error("Tried to dump unexistent object from `bodies` array.");
+
+		if (obj) this.removeChild(obj);
+	}
+	this.garbage = [];
+};
+createjs.promote(SDU.GameScene, "SDUScene");

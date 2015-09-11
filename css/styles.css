@@ -1,24 +1,44 @@
 * {
     margin: 0;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 *::selection {
-    background: rgba(50, 206, 244, 0.666);
+    color: #FFF;
+    background: #B3B8C4;
 }
 *::-moz-selection {
-    background: rgba(50, 206, 244, 0.666);
+    color: #FFF;
+    background: #B3B8C4;
 }
 html, body {
     font-family: "Helvetica Neue", Helvetica, "Myriad Pro", Arial, sans-serif;
-    background: #1A212A;
+    background: #EBEDF3;
 }
 hr {
     border: solid 0 #FFF;
     border-width: 0 0 1px 0;
     opacity: 0.05;
 }
+div.outer {
+    display: table;
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100%; height: 100%;
+}
+div.inner {
+    display: table-cell;
+    vertical-align: middle;
+}
+div.centre {
+    text-align: center;
+}
 .bold {
     font-weight: 700;
+}
+.blur {
+    -webkit-filter: blur(7px);
+    transition: 1s ease-in-out;
 }
 .noselect {
     -webkit-touch-callout: none;
@@ -35,73 +55,21 @@ canvas{
     display: block;
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
+    transition: 1s ease-in-out;
 }
-canvas.desaturate {
-    -webkit-filter: saturate(0.5);
-    -moz-filter: saturate(0.5);
-    -ms-filter: saturate(0.5);
-    -o-filter: saturate(0.5);
-    filter: saturate(0.5);
+#welcome {
+    z-index: -1;
+    font-family: "Avenir Next";
+    font-weight: lighter;
+    line-height: 72px;
+    transition: 1s ease-in-out;
 }
-
-#properties {
-    position: fixed;
-    width: 240px;
-    border-radius: 5px;
-    overflow: hidden;
-    color: #EEE; background: rgba(40,54,68,.88);
+#welcome h1 {
+    font-weight: lighter;
+    color: #B3B8C4;
+    font-size: 188px;
+    letter-spacing: -10px;
 }
-#properties > h1.title {
-    border: solid 0 #32CEF4;
-    border-width: 0 0 0 2px;
-    padding: .25em;
-    font-size: 24px; font-weight: 300;
-    text-align: center;
-}
-#properties > div.content {
-    padding: .5em;
-    max-height: 7em;
-    overflow-y: scroll;
-}
-#properties > div.content input[type="checkbox"] {
-    vertical-align: 2px;
-}
-#properties input[type="button"] {
-    width: 100%;
-    border: 0; border-radius: 2.5px;
-    font-size: 16px;
-    padding: .5em;
-    color: #EEE; background: #888;
-    cursor: pointer;
-    transition: background .2s;
-}
-#properties input[type="button"].red {
-    background: #FC5059;
-}
-#properties input[type="button"].red:hover {
-    background: #E03E46;
-}
-#properties input[type="button"].blue {
-    background: #32CEF4;
-}
-#properties input[type="button"].blue:hover {
-    background: #22BBE0;
-}
-#properties input[type="button"].green {
-    color: #1F262E;
-    background: #97FB32;
-}
-#properties input[type="button"].green:hover {
-    background: #7FDE20;
-}
-#properties > input[type="button"] {
-    position: absolute;
-    top: 5px; right: 5px;
-    padding: 0;
-    width: 30px; height: 30px;
-    font-size: 16px; line-height: 16px;
-}
-
 #debugInfo {
     position: fixed;
     right: 0; bottom: 0;
@@ -109,24 +77,9 @@ canvas.desaturate {
     font-family: "Source Code Pro", Menlo, Monaco, monospace;
     font-weight: 300;
     text-align: right;
-    color: #EEE; background: rgba(40,54,68,.88);
+    color: #EEE; background: rgba(15, 30, 50, 0.75);
 }
-#fps, #ms, #nplanets, #renderer {
+#fps, #ms, #nplanets, #algorithm, #pairs {
     font-weight: 500;
     transition: color 2s;
-}
-span.blue {
-    color: #32CEF4;
-}
-span.orange {
-    color: #FFAA55;
-}
-span.green {
-    color: #87E42A;
-}
-span.yellow {
-    color: #FFD214;
-}
-span.red {
-    color: #FC5059;
 }

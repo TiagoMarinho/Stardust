@@ -11,23 +11,23 @@ utils.merge = function(obj1, obj2) {
     }
     return obj;
 };
-utils.getRandomInt = function (min, max) {
+utils.getRandomInt = function(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 };
-utils.getRandomFloat = function (min, max) {
+utils.getRandomFloat = function(min, max) {
     return Math.random() * (max - min) + min;
 };
-utils.getAverage = function () {
+utils.getAverage = function() {
     var total = 0;
     for (var i = 0; i < arguments.length; i++) {
         total += arguments[i];
     }
     return total / arguments.length;
 };
-utils.getAverageWithRatio = function (n1, n2, ratio) {
+utils.getAverageWithRatio = function(n1, n2, ratio) {
     return Math.abs(n2 - n1) * ratio + Math.min(n1, n2);
 };
-utils.hexToRgb = function (hex) {
+utils.hexToRgb = function(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
         r: parseInt(result[1], 16),
@@ -35,51 +35,54 @@ utils.hexToRgb = function (hex) {
         b: parseInt(result[3], 16)
     } : null;
 };
-utils.rgbToHex = function (r, g, b) {
+utils.rgbToHex = function(r, g, b) {
     return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 };
-utils.getRadiusFromArea = function (area) {
+utils.getRadiusFromArea = function(area) {
     return Math.sqrt(area / Math.PI);
 };
 
-utils.sqr = function (x) {
-  return x * x;
+utils.sqr = function(x) {
+    return x * x;
 };
 
 utils.dist2 = function(v, w) {
-  return utils.sqr(v.x - w.x) + utils.sqr(v.y - w.y);
+    return utils.sqr(v.x - w.x) + utils.sqr(v.y - w.y);
 };
 
 utils.distToSegmentSquared = function(p, v, w) {
-  var l2 = utils.dist2(v, w);
-  if (l2 === 0) return utils.dist2(p, v);
-  var t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
-  if (t < 0) return utils.dist2(p, v);
-  if (t > 1) return utils.dist2(p, w);
-  return utils.dist2(p, { x: v.x + t * (w.x - v.x),
-                          y: v.y + t * (w.y - v.y) });
+    var l2 = utils.dist2(v, w);
+    if (l2 === 0) return utils.dist2(p, v);
+    var t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+    if (t < 0) return utils.dist2(p, v);
+    if (t > 1) return utils.dist2(p, w);
+    return utils.dist2(p, {
+        x: v.x + t * (w.x - v.x),
+        y: v.y + t * (w.y - v.y)
+    });
 };
 
-utils.distToSegment = function (p, v, w) {
-  return Math.sqrt(utils.distToSegmentSquared(p, v, w));
+utils.distToSegment = function(p, v, w) {
+    return Math.sqrt(utils.distToSegmentSquared(p, v, w));
 };
 
-Array.prototype.getRandomItem = function () {
+Array.prototype.getRandomItem = function() {
     var i = utils.getRandomInt(0, this.length - 1);
     return this[i];
 };
-navigator.sayswho= (function(){
-    var ua= navigator.userAgent, tem,
-    M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
-    if(/trident/i.test(M[1])){
-        tem=  /\brv[ :]+(\d+)/g.exec(ua) || [];
-        return 'IE '+(tem[1] || '');
+navigator.sayswho = (function() {
+    var ua = navigator.userAgent,
+        tem,
+        M = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+    if (/trident/i.test(M[1])) {
+        tem = /\brv[ :]+(\d+)/g.exec(ua) || [];
+        return 'IE ' + (tem[1] || '');
     }
-    if(M[1]=== 'Chrome'){
-        tem= ua.match(/\b(OPR|Edge)\/(\d+)/);
-        if(tem!= null) return tem.slice(1).join(' ').replace('OPR', 'Opera');
+    if (M[1] === 'Chrome') {
+        tem = ua.match(/\b(OPR|Edge)\/(\d+)/);
+        if (tem != null) return tem.slice(1).join(' ').replace('OPR', 'Opera');
     }
-    M= M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
-    if((tem= ua.match(/version\/(\d+)/i))!= null) M.splice(1, 1, tem[1]);
+    M = M[2] ? [M[1], M[2]] : [navigator.appName, navigator.appVersion, '-?'];
+    if ((tem = ua.match(/version\/(\d+)/i)) != null) M.splice(1, 1, tem[1]);
     return M.join(' ');
 })();
