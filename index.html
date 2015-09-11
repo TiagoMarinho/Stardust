@@ -23,10 +23,6 @@
                     "height": window.innerHeight
                 });
             });
-            setInterval(function(){
-            $("#mainCanvas").toggleClass("blur");
-            $("#welcome").toggleClass("blur");
-            }, 2500);
         });
     </script>
 
@@ -35,11 +31,6 @@
 
 <body oncontextmenu="return false;">
     <canvas id="mainCanvas" class="noselect blur" width="550" height="400"></canvas>
-    <div id="welcome" class="outer noevents">
-        <div class="inner">
-            <div class="centre">welcome to<br/><h1>stardust</h1></div>
-        </div>
-    </div>
 
     <div id="debugInfo">
         <span id="pairs">0</span> pairs<br/>
