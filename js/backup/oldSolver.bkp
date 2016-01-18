@@ -1,0 +1,56 @@
+class Stardust extends Scene {
+	constructor(canvas) {
+		super(canvas);
+		this.bodies = [];
+		this.collisions = [];
+		this.garbage = [];
+	}
+	step() {
+		var i, i1, i2, i3,
+			obj, obj1, obj2;
+		for (i = 0; i < this.bodies.length; ++i) {
+			obj = this.bodies[i];
+
+			obj.px = obj.x;
+			obj.py = obj.y;
+
+			obj.x += obj.vx;
+			obj.y += obj.vy;
+		}
+		for (i1 = 0; i1 < this.bodies.length - 1; ++i1) {
+			obj1 = this.bodies[i1];
+			for (i2 = i1 + 1; i2 < this.bodies.length; ++i2) {
+				obj2 = this.bodies[i2];
+
+				var diffX = obj2.x - obj1.x,
+					diffY = obj2.y - obj1.y;
+				var distanceSqr = Utils.sqr(diffX) + Utils.sqr(diffY);
+
+				if (distanceSqr > Utils.sqr(obj1.radius) + Utils.sqr(obj2.radius)) {
+					var distance = Math.sqrt(distanceSqr);
+
+					var force1 = obj2.area / distanceSqr;
+					obj1.vx += force1 * diffX / distance;
+					obj1.vy += force1 * diffY / distance;
+
+					var force2 = obj1.area / distanceSqr;
+					obj2.vx -= force2 * diffX / distance;
+					obj2.vy -= force2 * diffY / distance;
+				}
+			}
+		}
+	}
+	run() {
+		var earth = new Planet(50, 50, 5, "#08F");
+		var mars = new Planet(100, 50, 5, "#F66");
+		this.addChild(earth, mars);
+		this.bodies.push(earth, mars);
+
+		var self = this;
+		createjs.Ticker.timingMode = createjs.Ticker.RAF;
+		createjs.Ticker.addEventListener("tick", function() {
+			self.step();
+			self.update();
+		});
+	}
+}

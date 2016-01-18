@@ -24,3 +24,5 @@ js/PhysicsWorld.js
 js/Planet 1.js
 
 js/Scene 1.js
+
+.jshintrc

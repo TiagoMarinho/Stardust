@@ -1,22 +1,29 @@
 <!DOCTYPE html>
 <html>
-
 <head lang="en">
     <meta charset="UTF-8">
     <title>Stardust</title>
 
+    <meta name="viewport" content="width=device-width"/>
+
+    <link href="css/generics.css" rel="stylesheet" />
+    <link href="css/styles.css" rel="stylesheet" />
+    <link href="css/specifics.css" rel="stylesheet" />
+
     <script src="js/libs/jquery-1.11.1.min.js"></script>
-    <script src="js/libs/easeljs-0.8.0.combined.js"></script>
+    <script src="js/libs/easeljs-0.8.1.min.js"></script>
     <script src="js/libs/tweenjs-0.5.1.min.js"></script>
     <script src="js/Utils.js"></script>
-    <script src="js/Keys.js"></script>
-    <script src="js/Scene.js"></script>
+    <script src="js/Arrow.js"></script>
     <script src="js/Planet.js"></script>
+    <script src="js/Bend.js"></script>
     <script src="js/Engine.js"></script>
+    <script src="js/Pane Controller.js"></script>
 
     <script>
         $(document).on("ready", function() {
-            window.app = new SDU.GameScene("mainCanvas");
+            window.app = new Stardust("mainCanvas");
+            app.run();
             $(window).on("load resize", function() {
                 $("#mainCanvas").attr({
                     "width": window.innerWidth,
@@ -24,29 +31,45 @@
                 });
             });
             setInterval(function(){
-                $("#fps").html((1000 / app.delta).toFixed(1));
-                $("#ms").html((app.delta).toFixed(1));
+                $("#constraints").html(app.debugData.constraints);
                 $("#nplanets").html(app.bodies.length);
-                $("#pairs").html(app.gcIterations);
-                $("#algorithm").html(1000 / app.delta < 50 ? "FAST" : "SLOW");
-            }, 1000 / 30);
+                $("#fps").html((app.fps).toFixed());
+                $("#ms").html((1000 / app.fps).toFixed());
+            }, 1000 / 60);
+        });
+        window.addEventListener("keydown", function(e){
+            if(e.keyCode === key.SPACE_BAR)
+                $("#mainCanvas").toggleClass("blur");
         });
     </script>
-
-    <link href="css/styles.css" rel="stylesheet" />
 </head>
 
 <body oncontextmenu="return false;">
-    <canvas id="mainCanvas" class="noselect" width="550" height="400"></canvas>
+    <canvas id="mainCanvas" class="fullscreen noselect" width="550" height="400"></canvas>
 
-    <div id="debugInfo">
-        <span id="pairs">0</span> pairs<br/>
-        Using <span id="algorithm">no</span> algorithm<br/>
-        <span id="nplanets">0</span> planets on stage
-        <br/> Running at
-        <span id="fps">0</span>fps
-        (<span id="ms">∞</span>ms)
+    <div class="outer">
+        <div class="inner">
+            <div class="centre">
+            <div id="preferences" class="pane">
+                <input class="close" type="button" value="✕"/>
+                <input type="checkbox" id="drawTrails" checked>
+                <label class="noselect" for="drawTrails">Draw trails</label><br/>
+                <input type="checkbox" id="usePreciseCollisionDetection">
+                <label class="noselect" for="usePreciseCollisionDetection">Precise Collision Detection</label><br/><br/>
+                <span class="grayed-out">Advanced:</span><br/>
+                <input type="checkbox" id="drawConstraints">
+                <label class="noselect" for="drawConstraints">Draw constraints</label><br/>
+                <input type="checkbox" id="drawAABB">
+                <label class="noselect" for="drawAABB">Draw AABBs</label>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <div id="debugInfo" class="pane noevents">
+        <span id="nplanets">0</span> planets<br/>
+        <span id="constraints">0</span> constraints<br/>
+        <span id="fps">0</span>fps / <span id="ms">∞</span>ms
     </div>
 </body>
-
 </html>

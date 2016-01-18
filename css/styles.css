@@ -1,8 +1,3 @@
-* {
-    margin: 0;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
 *::selection {
     color: #FFF;
     background: #B3B8C4;
@@ -11,75 +6,41 @@
     color: #FFF;
     background: #B3B8C4;
 }
-html, body {
-    font-family: "Helvetica Neue", Helvetica, "Myriad Pro", Arial, sans-serif;
-    background: #EBEDF3;
-}
 hr {
     border: solid 0 #FFF;
     border-width: 0 0 1px 0;
     opacity: 0.05;
 }
-div.outer {
-    display: table;
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    width: 100%; height: 100%;
+div.pane {
+	padding: .75em;
+    color: #EBEDF3;
+    border-radius: 2px;
+    -webkit-backdrop-filter: blur(10px);
+    background: rgba(37, 36, 43, 0.5);
 }
-div.inner {
-    display: table-cell;
-    vertical-align: middle;
+div.pane > input[type="button"].close {
+    border: 0;
+    font-size: 16px;
+    cursor: pointer;
 }
-div.centre {
-    text-align: center;
+div.pane > span.grayed-out {
+	color: rgba(123, 133, 154, 0.5);
+	cursor: default;
 }
-.bold {
-    font-weight: 700;
+div.pane input[type="checkbox"] { display: none; }
+div.pane input[type="checkbox"]+label { cursor: pointer; }
+div.pane input[type="checkbox"]+label::before {
+    content: 'OFF';
+    display: inline-block;
+    margin: 0.25em 0.5em 0.25em 0;
+    padding: 0.125em 0.25em;
+    border: solid 2px #E44255;
+    border-radius: 2px;
+    color: #E44255;
+    cursor: pointer;
 }
-.blur {
-    -webkit-filter: blur(7px);
-    transition: 1s ease-in-out;
-}
-.noselect {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-.noevents {
-    pointer-events: none;
-}
-canvas{
-    display: block;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    transition: 1s ease-in-out;
-}
-#welcome {
-    z-index: -1;
-    font-family: "Avenir Next";
-    font-weight: lighter;
-    line-height: 72px;
-    transition: 1s ease-in-out;
-}
-#welcome h1 {
-    font-weight: lighter;
-    color: #B3B8C4;
-    font-size: 188px;
-    letter-spacing: -10px;
-}
-#debugInfo {
-    position: fixed;
-    right: 0; bottom: 0;
-    padding: .5em 1em;
-    font-family: "Source Code Pro", Menlo, Monaco, monospace;
-    font-weight: 300;
-    text-align: right;
-    color: #EEE; background: rgba(15, 30, 50, 0.75);
-}
-#fps, #ms, #nplanets, #algorithm, #pairs {
-    font-weight: 500;
-    transition: color 2s;
+div.pane input[type="checkbox"]:checked+label::before {
+    content: 'ON';
+    color: #0FBEB8;
+    border-color: #0FBEB8;
 }
