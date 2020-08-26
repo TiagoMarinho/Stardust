@@ -66,8 +66,7 @@ class BarnesHutTree {
 			if (quadTree.insert(body)) return true
 		}
 
-		debugger
-		throw new Error("QuadTree.insert: Could not add body to quadtree")
+		throw new Error("BarnesHutTree.insert: Could not add body to tree")
 	}
 	subdivide () {
 		if (!this.isSubdivided) {
