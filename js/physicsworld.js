@@ -10,18 +10,19 @@ class PhysicsWorld {
 		this.bodies = []
 		this.intersections = []
 		this.garbage = []
-		this.quadTree = null
+		this.barnesHutTree = null
 		this.debugRenderer = debugRenderer
-		this.barnesHutThreshold = 0.5
+		this.theta = 0.5
+		this.computationsPerIteration = 0
 	}
 	createQuadTree () {
 		const position = new Point(0, 0),
 			size = new Size(window.innerWidth, window.innerHeight),
 			boundary = new AABB(position, size)
-		this.quadTree = new BarnesHutTree(boundary, this.debugRenderer)
+		this.barnesHutTree = new BarnesHutTree(boundary, this.debugRenderer)
 
 		for (let body of this.bodies) {
-			this.quadTree.insert(body)
+			this.barnesHutTree.insert(body)
 		}
 	}
 	applyVelocityToPosition () {
@@ -33,27 +34,38 @@ class PhysicsWorld {
 		}
 	}
 	traverseTree () {
+		this.computationsPerIteration = 0
 		for (const body of this.bodies) {
-			this.quadTree.forEachNode(node => {
+			this.barnesHutTree.forEachNode(node => {
 				const distanceX = node.centerOfMass.x - body.position.x,
 					distanceY = node.centerOfMass.y - body.position.y,
 					distanceSquare = distanceX * distanceX + distanceY * distanceY,
-					distance = Math.sqrt(distanceSquare),
 					averageNodeSideLength = Math.max(node.boundary.size.width, node.boundary.size.height),
+					averageNodeSideLengthSquare = averageNodeSideLength * averageNodeSideLength,
+					thetaSquare = this.theta * this.theta,
+					isNodeFarEnoughToApproximateAsSingleBody = averageNodeSideLengthSquare / distanceSquare < thetaSquare,
 					isEndNode = node.isEndNode
 
-				if (averageNodeSideLength / distance < this.barnesHutThreshold || isEndNode) {
+				++this.computationsPerIteration
+
+				if (isNodeFarEnoughToApproximateAsSingleBody || isEndNode) {
 
 					if (isEndNode && node.isPopulated) {
 						if (node.body === body) return false
-						if (node.body.shape.radius + body.shape.radius > distance) {
+
+						const radiiSum = node.body.shape.radius + body.shape.radius,
+							radiiSumSquare = radiiSum * radiiSum
+
+						if (radiiSumSquare > distanceSquare) {
 							if (body.collidable && node.body.collidable) 
 								this.markAsIntersection(body, node.body)
+
 							return false
 						}
 					}
 
-					const force = this.G * ((body.mass * node.mass) / distanceSquare),
+					const distance = Math.sqrt(distanceSquare),
+						force = this.G * ((body.mass * node.mass) / distanceSquare),
 						forceByIteration = force / this.iterations
 
 					body.velocity.dx += (forceByIteration / body.mass) * distanceX / distance
