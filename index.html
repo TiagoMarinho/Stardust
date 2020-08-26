@@ -4,44 +4,48 @@
 	<title>Stardust 3</title>
 	<meta charset="utf-8">
 
-	<script src="js/utils.js"></script>
-	<script src="js/performanceprofiler.js"></script>
+	<script src="seedrandom.min.js"></script>
+	<script src="utils.js"></script>
+	<script src="performanceprofiler.js"></script>
 
-	<script src="js/point.js"></script>
-	<script src="js/size.js"></script>
-	<script src="js/vector.js"></script>
+	<script src="point.js"></script>
+	<script src="size.js"></script>
+	<script src="vector.js"></script>
+	<script src="AABB.js"></script>
 
-	<script src="js/shape.js"></script>
-	<script src="js/circle.js"></script>
-	<script src="js/sphere.js"></script>
+	<script src="shape.js"></script>
+	<script src="circle.js"></script>
+	<script src="sphere.js"></script>
+	<script src="rect.js"></script>
 
-	<script src="js/graphics.js"></script>
+	<script src="graphics.js"></script>
 
-	<script src="js/physicsbody.js"></script>
-	<script src="js/physicsworld.js"></script>
+	<script src="barneshuttree.js"></script>
+	<script src="physicsbody.js"></script>
+	<script src="physicsworld.js"></script>
 
-	<script src="js/entity.js"></script>
-	<script src="js/planet.js"></script>
+	<script src="entity.js"></script>
+	<script src="planet.js"></script>
 
-	<script src="js/renderer.js"></script>
-	<script src="js/scene.js"></script>
+	<script src="renderer.js"></script>
+	<script src="scene.js"></script>
 
-	<script src="js/engine.js"></script>
-	<script src="js/main.js"></script>
+	<script src="engine.js"></script>
+	<script src="main.js"></script>
 
-	<link rel="stylesheet" type="text/css" href="css/styles.css">
+	<link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
 	<div id="stats">
-		<span id="fps-counter"></span><br/>
-		<span id="ms-counter"></span>
+		<span id="fps-counter">144fps</span><br/>
+		<span id="ms-counter">6.9ms</span>
 	</div>
 
-	<canvas id="graphCanvas" width="550" height="400">Feature not supported</canvas>
+	<canvas id="debugCanvas" width="550" height="400"></canvas>
 	<canvas id="gameCanvas" width="550" height="400">Feature not supported</canvas>
 
 	<script>
-		main("gameCanvas", "fps-counter", "ms-counter")
+		main("gameCanvas", "debugCanvas", "fps-counter", "ms-counter")
 	</script>
 </body>
 </html>

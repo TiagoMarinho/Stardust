@@ -1,10 +1,16 @@
 class Engine {
-	constructor (canvas) {
-		this.scene = new Scene(canvas)
-		this.palette = ["#FF3658", "#FFD939", "#97FB32", "#32CEF4", "#FE60D6"]
+	constructor (canvas, debugCanvas) {
+		this.scene = new Scene(canvas, debugCanvas)
+		this.darkThemePalette = ["#FF3658", "#FFD939", "#97FB32", "#32CEF4", "#FE60D6"]
+		this.palette = ["#FF3658", "#97AB32", "#32CEF4", "#FE60D6"]
 		this.profiler = new PerformanceProfiler()
 	}
-	run () {
+	run (overrideSeed) {
+		let seed = `${Math.random()}`
+		seed = overrideSeed ? overrideSeed : parseInt(seed.substr(2, seed.length))
+		Math.seedrandom(seed)
+		console.log(`seed: ${seed}`)
+
 		const testCases = {
 			simpleCollision: _ => {
 				const center = {x: innerWidth / 2, y: innerHeight / 2}
@@ -39,24 +45,48 @@ class Engine {
 				}
 			},
 			randomCluster: (n = 1000) => {
-				const width = innerWidth,
-					height = innerHeight
+				const width = window.innerWidth,
+					height = window.innerHeight
 				for (let i = 0; i < n; ++i) {
-					const x = innerWidth / 2 + Utils.getRandomFloat(-width / 2, width / 2),
-					y = innerHeight / 2 + Utils.getRandomFloat(-height / 2, height / 2),
-					color = this.palette[Math.floor(Math.random() * (this.palette.length - 1))],
-					radius = Math.random() * 1 + 1
+					const x = innerWidth / 2 + Utils.getRandomFloat(-width / 2, width / 2, seed),
+					y = innerHeight / 2 + Utils.getRandomFloat(-height / 2, height / 2, seed),
+					color = this.palette[Math.floor(Math.random() * (this.palette.length - 1))]
 
-					const myPlanet = new Planet(color, new Point(x, y), radius)
+					const myPlanet = new Planet(color, new Point(x, y), 2)
+					myPlanet.density = 100
 					this.scene.addChild(myPlanet)
+				}
+			},
+			galaxy: (n, radius) => {
+				const center = new Point(innerWidth / 2, innerHeight / 2),
+					color = "#f00",
+					blackHole = new Planet(color, center, 2)
+
+				blackHole.physicsBody.density = 20
+				this.scene.addChild(blackHole)
+
+				for (let i = 0; i < n; ++i) {
+					const center = new Point(innerWidth / 2, innerHeight / 2),
+						radians = Utils.getRandomFloat(0, Math.PI * 2),
+						distance = radius * Math.sqrt(Math.random()),
+						x = center.x + distance * Math.sin(radians),
+						y = center.y + distance * Math.cos(radians),
+						speed = 1 / distance * 20,
+						planet = new Planet("#fff", new Point(x, y), 0.1)
+
+					planet.physicsBody.velocity.dx = Math.sin(radians + Math.PI / 2) * speed
+					planet.physicsBody.velocity.dy = Math.cos(radians + Math.PI / 2) * speed
+
+					this.scene.addChild(planet)
 				}
 			}
 		}
 
 		//testCases.simpleCollision()
 		//testCases.simpleOrbit()
-		testCases.randomCluster(1000)
-		//testCases.randomSimpleCollision(1000)
+		testCases.randomCluster(3000)
+		//testCases.randomSimpleCollision(10)
+		//testCases.galaxy(5000, 100)
 
 		this.update()
 	}

@@ -1,16 +1,19 @@
-let main = (gameCanvasId, fpsCounterId, msCounterId) => {
-	const gameCanvas = document.getElementById(gameCanvasId)
+let main = (gameCanvasId, debugCanvasId, fpsCounterId, msCounterId) => {
+	const gameCanvas = document.getElementById(gameCanvasId),
+		debugCanvas = document.getElementById(debugCanvasId)
 
-	const fitWindowSize = (canvas) => {
-		canvas.width = innerWidth
-		canvas.height = innerHeight
+	const fitWindowSize = (...canvases) => {
+		for (canvas of canvases) {
+			canvas.width = innerWidth
+			canvas.height = innerHeight
+		}
 	}
-	fitWindowSize(gameCanvas)
+	fitWindowSize(gameCanvas, debugCanvas)
 	window.addEventListener("resize", _ => {
-		fitWindowSize(gameCanvas)
+		fitWindowSize(gameCanvas, debugCanvas)
 	})
 
-	const app = new Engine(gameCanvas)
+	const app = new Engine(gameCanvas, debugCanvas)
 	app.run()
 
 	setInterval(_ => {
