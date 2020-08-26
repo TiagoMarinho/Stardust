@@ -37,15 +37,15 @@
 </head>
 <body>
 	<div id="stats">
-		<span id="fps-counter">144fps</span><br/>
-		<span id="ms-counter">6.9ms</span>
+		<span id="fps-counter"></span><br/>
+		<span id="ms-counter"></span><br/>
+		<span id="computation-counter"></span>
 	</div>
 
-	<canvas id="debugCanvas" width="550" height="400"></canvas>
 	<canvas id="gameCanvas" width="550" height="400">Feature not supported</canvas>
 
 	<script>
-		main("gameCanvas", "debugCanvas", "fps-counter", "ms-counter")
+		main("gameCanvas", "debugCanvas", "computation-counter", "fps-counter", "ms-counter")
 	</script>
 </body>
 </html>
