@@ -1,46 +1,23 @@
-*::selection {
-    color: #FFF;
-    background: #B3B8C4;
+html, body {
+	font-family: "Source Sans Pro", arial, sans-serif;
+	color: #ebedf3;
+	background: #0c0b10;
 }
-*::-moz-selection {
-    color: #FFF;
-    background: #B3B8C4;
+canvas {
+	position: fixed;
+	top: 0; left: 0; right: 0; bottom: 0;
+	width: 100%; height: 100%;
 }
-hr {
-    border: solid 0 #FFF;
-    border-width: 0 0 1px 0;
-    opacity: 0.05;
+#graphCanvas {
+	z-index: 2;
 }
-div.pane {
-	padding: .75em;
-    color: #EBEDF3;
-    border-radius: 2px;
-    -webkit-backdrop-filter: blur(10px);
-    background: rgba(37, 36, 43, 0.5);
-}
-div.pane > input[type="button"].close {
-    border: 0;
-    font-size: 16px;
-    cursor: pointer;
-}
-div.pane > span.grayed-out {
-	color: rgba(123, 133, 154, 0.5);
-	cursor: default;
-}
-div.pane input[type="checkbox"] { display: none; }
-div.pane input[type="checkbox"]+label { cursor: pointer; }
-div.pane input[type="checkbox"]+label::before {
-    content: 'OFF';
-    display: inline-block;
-    margin: 0.25em 0.5em 0.25em 0;
-    padding: 0.125em 0.25em;
-    border: solid 2px #E44255;
-    border-radius: 2px;
-    color: #E44255;
-    cursor: pointer;
-}
-div.pane input[type="checkbox"]:checked+label::before {
-    content: 'ON';
-    color: #0FBEB8;
-    border-color: #0FBEB8;
+#stats {
+	position: fixed;
+	right: 0; bottom: 0;
+	padding: .5em;
+	z-index: 3;
+	text-align: right;
+	backdrop-filter: blur(10px);
+	background: rgba(12, 11, 16, 0.5);
+	border-radius: 2px 0 0 0;
 }
