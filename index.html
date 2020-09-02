@@ -4,19 +4,23 @@
 	<title>Stardust 3</title>
 	<meta charset="utf-8">
 
+	<script src="js/seedrandom.min.js"></script>
 	<script src="js/utils.js"></script>
 	<script src="js/performanceprofiler.js"></script>
 
 	<script src="js/point.js"></script>
 	<script src="js/size.js"></script>
 	<script src="js/vector.js"></script>
+	<script src="js/aabb.js"></script>
 
 	<script src="js/shape.js"></script>
 	<script src="js/circle.js"></script>
 	<script src="js/sphere.js"></script>
+	<script src="js/rect.js"></script>
 
 	<script src="js/graphics.js"></script>
 
+	<script src="js/barneshuttree.js"></script>
 	<script src="js/physicsbody.js"></script>
 	<script src="js/physicsworld.js"></script>
 
@@ -34,14 +38,14 @@
 <body>
 	<div id="stats">
 		<span id="fps-counter"></span><br/>
-		<span id="ms-counter"></span>
+		<span id="ms-counter"></span><br/>
+		<span id="computation-counter"></span>
 	</div>
 
-	<canvas id="graphCanvas" width="550" height="400">Feature not supported</canvas>
 	<canvas id="gameCanvas" width="550" height="400">Feature not supported</canvas>
 
 	<script>
-		main("gameCanvas", "fps-counter", "ms-counter")
+		main("gameCanvas", "debugCanvas", "computation-counter", "fps-counter", "ms-counter")
 	</script>
 </body>
 </html>

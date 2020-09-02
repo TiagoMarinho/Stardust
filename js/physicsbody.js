@@ -7,7 +7,7 @@ class PhysicsBody {
 		this.density = 1
 		this.contact = null
 		this._destroyed = false
-		this.collidable = true//false
+		this.collidable = true
 
 		this.userData = {}
 	}

@@ -2,16 +2,16 @@ class Utils {
 	constructor () {
 
 	}
-	static getRandomFloat(min, max) {
+	static getRandomFloat (min, max) {
 		return Math.random() * (max - min) + min;
 	}
-	static getRandomInt(min, max) {
+	static getRandomInt (min, max) {
 		return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
-	static getRandomBool() {
+	static getRandomBool () {
 		return Math.floor(Math.random() * 2) === 1;
 	}
-	static getRandomItem(arr) {
+	static getRandomItem (arr) {
 		return arr[Utils.getRandomInt(0, arr.length - 1)];
 	}
 	static distanceToPointSquare (v, w) {

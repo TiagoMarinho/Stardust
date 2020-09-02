@@ -1,16 +1,19 @@
-let main = (gameCanvasId, fpsCounterId, msCounterId) => {
-	const gameCanvas = document.getElementById(gameCanvasId)
+let main = (gameCanvasId, debugCanvasId, computationCounterId, fpsCounterId, msCounterId) => {
+	const gameCanvas = document.getElementById(gameCanvasId),
+		debugCanvas = document.getElementById(debugCanvasId)
 
-	const fitWindowSize = (canvas) => {
-		canvas.width = innerWidth
-		canvas.height = innerHeight
+	const fitWindowSize = (...canvases) => {
+		for (canvas of canvases) {
+			canvas.width = innerWidth
+			canvas.height = innerHeight
+		}
 	}
 	fitWindowSize(gameCanvas)
 	window.addEventListener("resize", _ => {
 		fitWindowSize(gameCanvas)
 	})
 
-	const app = new Engine(gameCanvas)
+	const app = new Engine(gameCanvas, debugCanvas)
 	app.run()
 
 	setInterval(_ => {
@@ -21,5 +24,9 @@ let main = (gameCanvasId, fpsCounterId, msCounterId) => {
 		const msCounter = document.getElementById(msCounterId),
 			ms = Math.trunc(app.profiler.ms)
 		msCounter.innerHTML = `${ms}ms`
+
+		const computationCounter = document.getElementById(computationCounterId),
+			computation = Math.trunc(app.scene.physicsWorld.computationsPerIteration)
+		computationCounter.innerHTML = `${computation}cpi`
 	}, 1000 / 10)
 }
