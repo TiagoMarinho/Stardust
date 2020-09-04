@@ -12,6 +12,16 @@ class AABB {
 
 		return false
 	}
+	containsPointDebug (point) { // careful: maybe warrants >= <= checks
+		debugger
+		if (point.x >= this.leftEdgeX &&
+			point.x <= this.rightEdgeX &&
+			point.y >= this.topEdgeY &&
+			point.y <= this.bottomEdgeY)
+			return true
+
+		return false
+	}
 	get topEdgeY () {
 		return this.position.y
 	}
