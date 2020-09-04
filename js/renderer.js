@@ -31,16 +31,6 @@ class Renderer {
 		this.garbage.length = 0
 	}
 	render () {
-		for (const graphic of this.debugGraphics) {
-			if (graphic.shape instanceof Sphere && graphic.active) {
-				this.drawCircle(graphic.color, graphic.position, graphic.shape.radius)
-			}
-			if (graphic.shape instanceof Rect && graphic.active) {
-				this.drawRect(graphic.color, graphic.position, graphic.shape.size)
-			}
-		}
-		this.debugGraphics.length = 0
-		
 		let index = 0
 		for (const graphic of this.graphics) {
 			if (graphic.shape instanceof Sphere && graphic.active) {
@@ -54,6 +44,17 @@ class Renderer {
 			++index
 		}
 		this.collectGarbage()
+
+		for (const graphic of this.debugGraphics) {
+			if (graphic.shape instanceof Sphere && graphic.active) {
+				this.drawCircle(graphic.color, graphic.position, graphic.shape.radius)
+			}
+			if (graphic.shape instanceof Rect && graphic.active) {
+				this.drawRect(graphic.color, graphic.position, graphic.shape.size)
+			}
+			++index
+		}
+		this.debugGraphics.length = 0
 
 		return this
 	}

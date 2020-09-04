@@ -10,14 +10,14 @@ class BarnesHutTree {
 		this.mass = 0
 		this.centerOfMass = new Point(0, 0)
 
-		this.debugRenderEmptyNodes = true
-		this.debugRenderChildNodes = true
+		this.debugRenderEmptyNodes = false
+		this.debugRenderChildNodes = false
 		this.debugRenderParentNodes = false
 		this.debugRenderCenterOfMass = false
 
 		this.debugRenderer = debugRenderer
 		this.shape = new Rect(boundary.size)
-		this.graphics = new Graphics("#fff", boundary.position, this.shape)
+		this.graphics = new Graphics("rgba(255, 255, 255, 0.1)", boundary.position, this.shape)
 		this.debugRenderer.debugGraphics.push(this.graphics)
 		this.graphics.active = this.debugRenderEmptyNodes
 
@@ -65,14 +65,8 @@ class BarnesHutTree {
 		for (let quadTree of this.children) {
 			if (quadTree.insert(body)) return true
 		}
-		for (let quadTree of this.children) {
-			if (quadTree.insertDebug(body)) return true
-		}
 
 		throw new Error("BarnesHutTree.insert: Could not add body to tree")
-	}
-	insertDebug (body) {
-		this.boundary.containsPointDebug(body.position)
 	}
 	subdivide () {
 		if (!this.isSubdivided) {
