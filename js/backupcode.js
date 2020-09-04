@@ -1,5 +1,14 @@
 // following function was used to simulate gravity constraint between two bodies before barnes-hut implementation in physicsworld.js
 
+isIntersecting (bodyA, bodyB) {
+	const distanceX = bodyB.position.x - bodyA.position.x,
+		distanceY = bodyB.position.y - bodyA.position.y,
+		distanceSquare = distanceX * distanceX + distanceY * distanceY,
+		radiusSum = bodyA.shape.radius + bodyB.shape.radius,
+		radiusSumSquare = radiusSum * radiusSum
+
+	return distanceSquare < radiusSumSquare
+}
 runOnceForEveryBodyPair (callback) {
 	let indexA = 0
 	for (const bodyA of this.bodies) {

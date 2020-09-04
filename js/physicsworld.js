@@ -9,12 +9,14 @@ class PhysicsWorld {
 		this.theta = 0.5
 		this.computationsPerIteration = 0
 		this.debugRenderer = debugRenderer
+		this.adaptiveDomainBoundary = new AABB(new Point(0, 0), new Size(0, 0))
+		this.enforceSquareNodes = false
 	}
 	createBarnesHutTree () {
 		const position = new Point(0, 0),
 			size = new Size(window.innerWidth, window.innerHeight),
 			boundary = new AABB(position, size)
-		this.barnesHutTree = new BarnesHutTree(boundary, this.debugRenderer)
+		this.barnesHutTree = new BarnesHutTree(this.adaptiveDomainBoundary, this.debugRenderer)
 
 		for (let body of this.bodies) {
 			this.barnesHutTree.insert(body)
@@ -22,6 +24,10 @@ class PhysicsWorld {
 	}
 	applyVelocityToPosition () {
 		let index = 0
+
+		let position = new Point(Infinity, Infinity),
+			size = new Size(-Infinity, -Infinity)
+
 		for (const body of this.bodies) {
 
 			body.userData.bodiesArrayIndex = index
@@ -31,8 +37,26 @@ class PhysicsWorld {
 			body.position.x += body.velocity.dx / this.iterations
 			body.position.y += body.velocity.dy / this.iterations
 
+			// Store maximum and minimum body positions to use as adaptive domain boundary:
+			position.x = Math.min(body.position.x, position.x)
+			position.y = Math.min(body.position.y, position.y)
+			size.width = Math.max(body.position.x, size.width)
+			size.height = Math.max(body.position.y, size.height)
+
 			++index
 		}
+
+		// Use stored body positions and adaptive domain boundary:
+		const margin = 1 // fixes floating point errors from preventing body from being added to tree
+		position.x -= margin
+		position.y -= margin
+		size.width = size.width - position.x + margin / 2
+		size.height = size.height - position.y + margin / 2
+		if (this.enforceSquareNodes) {
+			size.width = Math.max(size.width, size.height)
+			size.height = Math.max(size.width, size.height)
+		}
+		this.adaptiveDomainBoundary = new AABB(position, size)
 	}
 	traverseTree () {
 		this.computationsPerIteration = 0
@@ -44,14 +68,13 @@ class PhysicsWorld {
 					averageNodeSideLength = Math.max(node.boundary.size.width, node.boundary.size.height),
 					averageNodeSideLengthSquare = averageNodeSideLength * averageNodeSideLength,
 					thetaSquare = this.theta * this.theta,
-					isNodeFarEnoughToApproximateAsSingleBody = averageNodeSideLengthSquare / distanceSquare < thetaSquare,
-					isEndNode = node.isEndNode
+					isNodeFarEnoughToApproximateAsSingleBody = averageNodeSideLengthSquare / distanceSquare < thetaSquare
 
 				++this.computationsPerIteration
 
-				if (isNodeFarEnoughToApproximateAsSingleBody || isEndNode) {
+				if (isNodeFarEnoughToApproximateAsSingleBody || node.isEndNode) {
 
-					if (isEndNode && node.isPopulated) {
+					if (node.isEndNode && node.isPopulated) {
 						if (node.body === body) return false
 
 						const radiiSum = node.body.shape.radius + body.shape.radius,
@@ -76,15 +99,6 @@ class PhysicsWorld {
 				} else return true
 			})
 		}
-	}
-	isIntersecting (bodyA, bodyB) { // I feel like this does not belong here
-		const distanceX = bodyB.position.x - bodyA.position.x,
-			distanceY = bodyB.position.y - bodyA.position.y,
-			distanceSquare = distanceX * distanceX + distanceY * distanceY,
-			radiusSum = bodyA.shape.radius + bodyB.shape.radius,
-			radiusSumSquare = radiusSum * radiusSum
-
-		return distanceSquare < radiusSumSquare
 	}
 	markAsIntersection (bodyA, bodyB) {
 		const isAlreadyIntersectingWithAnotherBody = {
@@ -145,7 +159,7 @@ class PhysicsWorld {
 					bodyA.velocity.dx = (bodyA.velocity.dx * bodyA.mass + bodyB.velocity.dx * bodyB.mass) / (bodyA.mass + bodyB.mass)
 					bodyA.velocity.dy = (bodyA.velocity.dy * bodyA.mass + bodyB.velocity.dy * bodyB.mass) / (bodyA.mass + bodyB.mass)
 
-					bodyA.shape.volume += bodyB.shape.volume
+					bodyA.shape.volume += bodyB.shape.volume / bodyA.density
 
 					this.garbage.push(bodyB.userData.bodiesArrayIndex)
 
