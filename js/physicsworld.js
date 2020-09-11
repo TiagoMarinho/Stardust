@@ -60,15 +60,27 @@ class PhysicsWorld {
 	}
 	traverseTree () {
 		this.computationsPerIteration = 0
+    //cache outside of both loops
+    const thetaSquare = this.theta * this.theta;
 		for (const body of this.bodies) {
+      //Cache before inner node loop
+      const bodyPositionX = body.position.x
+      const bodyPositionY = body.position.y;
 			this.barnesHutTree.forEachNode(node => {
-				const distanceX = node.centerOfMass.x - body.position.x,
-					distanceY = node.centerOfMass.y - body.position.y,
-					distanceSquare = distanceX * distanceX + distanceY * distanceY,
-					averageNodeSideLength = Math.max(node.boundary.size.width, node.boundary.size.height),
-					averageNodeSideLengthSquare = averageNodeSideLength * averageNodeSideLength,
-					thetaSquare = this.theta * this.theta,
-					isNodeFarEnoughToApproximateAsSingleBody = averageNodeSideLengthSquare / distanceSquare < thetaSquare
+				const 
+          distanceX = node.centerOfMass.x - bodyPositionX,
+					distanceY = node.centerOfMass.y - bodyPositionY,          
+					distanceSquare = distanceX * distanceX + distanceY * distanceY;
+          let averageNodeSideLengthSquare;
+          //Cache a triple pointer lookup
+          const nodeBoundarySize = node.boundary.size;
+          //`if` is faster than `Math.max` in 2020
+          if(nodeBoundarySize.width > nodeBoundarySize.height)
+            averageNodeSideLengthSquare = nodeBoundarySize.squareHeight;
+           else
+            averageNodeSideLengthSquare = nodeBoundarySize.squareWidth;
+
+					const isNodeFarEnoughToApproximateAsSingleBody = averageNodeSideLengthSquare / distanceSquare < thetaSquare
 
 				++this.computationsPerIteration
 
