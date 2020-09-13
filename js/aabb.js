@@ -3,7 +3,7 @@ class AABB {
 		this.position = position
 		this.size = size
 	}
-	containsPoint (point) { // careful: maybe warrants >= <= checks
+	containsPoint (point) {
 		if (point.x >= this.leftEdgeX &&
 			point.x <= this.rightEdgeX &&
 			point.y >= this.topEdgeY &&
@@ -12,7 +12,7 @@ class AABB {
 
 		return false
 	}
-	containsPointDebug (point) { // careful: maybe warrants >= <= checks
+	containsPointDebug (point) { 
 		debugger
 		if (point.x >= this.leftEdgeX &&
 			point.x <= this.rightEdgeX &&

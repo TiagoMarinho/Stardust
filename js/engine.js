@@ -61,8 +61,8 @@ class Engine {
 				const width = window.innerWidth,
 					height = window.innerHeight
 				for (let i = 0; i < n; ++i) {
-					const x = innerWidth / 2 + Utils.getRandomFloat(-width / 2, width / 2, seed),
-					y = innerHeight / 2 + Utils.getRandomFloat(-height / 2, height / 2, seed),
+					const x = innerWidth / 2 + Utils.getRandomFloat(-width / 2, width / 2),
+					y = innerHeight / 2 + Utils.getRandomFloat(-height / 2, height / 2),
 					color = this.palette[Math.floor(Math.random() * (this.palette.length - 1))]
 
 					const myPlanet = new Planet(color, new Point(x, y), 2)
@@ -80,12 +80,12 @@ class Engine {
 				for (let i = 0; i < n; ++i) {
 					const center = new Point(innerWidth / 2, innerHeight / 2),
 						radians = Math.PI * 2 / n * i,
-						distance = radius,//Utils.getRandomFloat(radius - 20, radius + 20),
+						distance = radius * Math.sqrt(Math.random()),
 						x = center.x + distance * Math.sin(radians),
 						y = center.y + distance * Math.cos(radians),
 						speed = 1 / distance * 20,
 						color = this.palette[Math.floor(Math.random() * (this.palette.length - 1))],
-						planet = new Planet(color, new Point(x, y), 1)
+						planet = new Planet(color, new Point(x, y), 2)
 
 					planet.physicsBody.velocity.dx = Math.sin(radians + Math.PI / 2) * speed
 					planet.physicsBody.velocity.dy = Math.cos(radians + Math.PI / 2) * speed
@@ -99,7 +99,7 @@ class Engine {
 		//testCases.simpleOrbit()
 		testCases.randomCluster(3000)
 		//testCases.randomSimpleCollision(10)
-		//testCases.coolOrbit(1000, 600)
+		//testCases.coolOrbit(3000, 600)
 
 		this.update()
 	}

@@ -9,8 +9,9 @@ class PhysicsWorld {
 		this.theta = 0.5
 		this.computationsPerIteration = 0
 		this.debugRenderer = debugRenderer
-		this.adaptiveDomainBoundary = new AABB(new Point(0, 0), new Size(0, 0))
+		this.adaptiveDomainBoundary = new AABB(new Point(0, 0), new Size(innerWidth, innerHeight))
 		this.enforceSquareNodes = false
+		this.useAdaptiveDomainBoundary = true
 	}
 	createBarnesHutTree () {
 		const position = new Point(0, 0),
@@ -56,33 +57,29 @@ class PhysicsWorld {
 			size.width = Math.max(size.width, size.height)
 			size.height = Math.max(size.width, size.height)
 		}
-		this.adaptiveDomainBoundary = new AABB(position, size)
+		if (this.useAdaptiveDomainBoundary)
+			this.adaptiveDomainBoundary = new AABB(position, size)
 	}
 	traverseTree () {
+    	const thetaSquare = this.theta * this.theta
 		this.computationsPerIteration = 0
-    //cache outside of both loops
-    const thetaSquare = this.theta * this.theta;
+
+		const n = this.bodies.length
+		this.computationsPerIteration = n * Math.log(n)
+
 		for (const body of this.bodies) {
-      //Cache before inner node loop
-      const bodyPositionX = body.position.x
-      const bodyPositionY = body.position.y;
+
+	      	const bodyPositionX = body.position.x,
+	      		bodyPositionY = body.position.y
+
 			this.barnesHutTree.forEachNode(node => {
-				const 
-          distanceX = node.centerOfMass.x - bodyPositionX,
-					distanceY = node.centerOfMass.y - bodyPositionY,          
-					distanceSquare = distanceX * distanceX + distanceY * distanceY;
-          let averageNodeSideLengthSquare;
-          //Cache a triple pointer lookup
-          const nodeBoundarySize = node.boundary.size;
-          //`if` is faster than `Math.max` in 2020
-          if(nodeBoundarySize.width > nodeBoundarySize.height)
-            averageNodeSideLengthSquare = nodeBoundarySize.squareHeight;
-           else
-            averageNodeSideLengthSquare = nodeBoundarySize.squareWidth;
-
-					const isNodeFarEnoughToApproximateAsSingleBody = averageNodeSideLengthSquare / distanceSquare < thetaSquare
-
-				++this.computationsPerIteration
+				const distanceX = node.centerOfMass.x - bodyPositionX,
+					distanceY = node.centerOfMass.y - bodyPositionY,
+					distanceSquare = distanceX * distanceX + distanceY * distanceY,
+					nodeBoundarySize = node.boundary.size,
+					maxNodeSideLengthSquare = (nodeBoundarySize.width > nodeBoundarySize.height ? 
+						nodeBoundarySize.squareWidth : nodeBoundarySize.squareHeight),
+					isNodeFarEnoughToApproximateAsSingleBody = maxNodeSideLengthSquare / distanceSquare < thetaSquare
 
 				if (isNodeFarEnoughToApproximateAsSingleBody || node.isEndNode) {
 

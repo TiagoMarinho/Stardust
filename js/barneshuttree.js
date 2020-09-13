@@ -10,8 +10,8 @@ class BarnesHutTree {
 		this.mass = 0
 		this.centerOfMass = new Point(0, 0)
 
-		this.debugRenderEmptyNodes = true
-		this.debugRenderChildNodes = true
+		this.debugRenderEmptyNodes = false
+		this.debugRenderChildNodes = false
 		this.debugRenderParentNodes = false
 		this.debugRenderCenterOfMass = false
 
@@ -76,12 +76,19 @@ class BarnesHutTree {
 	}
 	subdivide () {
 		if (!this.isSubdivided) {
+
+			const width = this.boundary.size.width / 2,
+				height = this.boundary.size.height / 2,
+				size = new Size(width, height)
+
 			for (let row = 0; row < 2; ++row) {
+
+				const y = this.boundary.position.y + height * row
+
 				for (let column = 0; column < 2; ++column) {
-					const x = this.boundary.position.x + this.boundary.size.width / 2 * column, 
-						y = this.boundary.position.y + this.boundary.size.height / 2 * row,
+
+					const x = this.boundary.position.x + width * column,
 						position = new Point(x, y),
-						size = new Size(this.boundary.size.width / 2, this.boundary.size.height / 2),
 						boundary = new AABB(position, size),
 						subdividedQuad = new BarnesHutTree(boundary, this.debugRenderer)
 
