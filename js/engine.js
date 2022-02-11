@@ -1,6 +1,6 @@
 class Engine {
-	constructor (canvas, debugCanvas) {
-		this.scene = new Scene(canvas, debugCanvas)
+	constructor (canvas) {
+		this.scene = new Scene(canvas)
 		this.darkThemePalette = ["#FF3658", "#FFD939", "#97FB32", "#32CEF4", "#FE60D6"]
 		this.palette = ["#FF3658", "#97AB32", "#32CEF4", "#FE60D6"]
 		this.profiler = new PerformanceProfiler()
@@ -111,7 +111,6 @@ class Engine {
 		this.scene.update()
 
 		requestAnimationFrame(_ => { // maybe move somewhere else?
-
 			this.update()
 		})
 	}

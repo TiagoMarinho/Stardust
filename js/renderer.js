@@ -18,6 +18,14 @@ class Renderer {
 		this.context.arc(position.x, position.y, radius, 0, 2 * Math.PI, false)
 		this.context.fill()
 	}
+	drawLine (color, pointA, pointB, thickness) {
+		this.context.beginPath()
+		this.context.moveTo(pointA.x, pointA.y)
+		this.context.lineTo(pointB.x, pointB.y)
+		this.context.lineWidth = thickness
+		this.context.strokeStyle = color
+		this.context.stroke()
+	}
 	clear (position, size) {
 		this.context.clearRect(position.x, position.y, size.width, size.height)
 		return this
@@ -37,6 +45,9 @@ class Renderer {
 			}
 			if (graphic.shape instanceof Rect && graphic.active) {
 				this.drawRect(graphic.color, graphic.position, graphic.shape.size)
+			}
+			if (graphic.shape instanceof Line && graphic.active) {
+				this.drawLine(graphic.color, graphic.shape.pointA, graphic.shape.pointB, 1)
 			}
 		}
 		this.debugGraphics.length = 0

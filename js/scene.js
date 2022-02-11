@@ -1,10 +1,7 @@
 class Scene {
-	constructor (canvas, debugCanvas) {
+	constructor (canvas) {
 		this.canvas = canvas
 		this.context = canvas.getContext("2d")
-
-		this.debugCanvas = debugCanvas
-		this.debugContext = canvas.getContext("2d")
 
 		this.renderer = new Renderer(this.context)
 		this.physicsWorld = new PhysicsWorld(this.renderer)
