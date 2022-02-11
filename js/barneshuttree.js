@@ -1,5 +1,3 @@
-// TODO: make adaptive boundary size
-
 class BarnesHutTree {
 	constructor (boundary, debugRenderer) {
 		this.boundary = boundary
@@ -11,7 +9,7 @@ class BarnesHutTree {
 		this.centerOfMass = new Point(0, 0)
 
 		this.debugRenderEmptyNodes = false
-		this.debugRenderChildNodes = false
+		this.debugRenderChildNodes = true
 		this.debugRenderParentNodes = false
 		this.debugRenderCenterOfMass = false
 
@@ -45,27 +43,28 @@ class BarnesHutTree {
 		if (!this.boundary.containsPoint(body.position))
 			return false
 
-		this.centerOfMass.x = (this.centerOfMass.x * this.mass + body.position.x * body.mass) / (this.mass + body.mass)
-		this.centerOfMass.y = (this.centerOfMass.y * this.mass + body.position.y * body.mass) / (this.mass + body.mass)
+		this.centerOfMass.x = Utils.getWeightedAverage(this.centerOfMass.x, this.mass, body.position.x, body.mass)
+		this.centerOfMass.y = Utils.getWeightedAverage(this.centerOfMass.y, this.mass, body.position.y, body.mass)
 		this.mass += body.mass
 		
 		if (this.debugRenderCenterOfMass) this.graphics2.active = true
 
-		if (this.bodies.length < this.capacity &&
-			!this.isSubdivided) {
+		if (this.bodies.length < this.capacity && !this.isSubdivided) {
 			this.bodies.push(body)
-			if (this.debugRenderChildNodes) this.graphics.active = true
+
+			if (this.debugRenderChildNodes) 
+				this.graphics.active = true
+
 			return true
 		}
 
-		if (!this.isSubdivided) {
+		if (!this.isSubdivided)
 			this.subdivide()
-		}
 
-		for (let quadTree of this.children) {
+		for (const quadTree of this.children) {
 			if (quadTree.insert(body)) return true
 		}
-		for (let quadTree of this.children) {
+		for (const quadTree of this.children) {
 			if (quadTree.insertDebug(body)) return true
 		}
 
@@ -97,7 +96,7 @@ class BarnesHutTree {
 			}
 		} else return false
 
-		for (let body of this.bodies) { // move previous bodies to endnodes
+		for (const body of this.bodies) { // move previous bodies to endnodes
 			this.insert(body)
 		}
 

@@ -6,12 +6,12 @@ class PhysicsWorld {
 		this.intersections = []
 		this.garbage = []
 		this.barnesHutTree = null
-		this.theta = 0.5
+		this.theta = 0.75
 		this.computationsPerIteration = 0
 		this.debugRenderer = debugRenderer
 		this.adaptiveDomainBoundary = new AABB(new Point(0, 0), new Size(innerWidth, innerHeight))
-		this.enforceSquareNodes = false
-		this.useAdaptiveDomainBoundary = true
+		this.enforceSquareNodes = false//true
+		this.useAdaptiveDomainBoundary = false//true
 	}
 	createBarnesHutTree () {
 		const position = new Point(0, 0),
@@ -23,7 +23,7 @@ class PhysicsWorld {
 			this.barnesHutTree.insert(body)
 		}
 	}
-	applyVelocityToPosition () {
+	integrator () {
 		let index = 0
 
 		let position = new Point(Infinity, Infinity),
@@ -38,7 +38,7 @@ class PhysicsWorld {
 			body.position.x += body.velocity.dx / this.iterations
 			body.position.y += body.velocity.dy / this.iterations
 
-			// Store maximum and minimum body positions to use as adaptive domain boundary:
+			// Store maximum and minimum body positions to use as adaptive domain boundary
 			position.x = Math.min(body.position.x, position.x)
 			position.y = Math.min(body.position.y, position.y)
 			size.width = Math.max(body.position.x, size.width)
@@ -47,8 +47,8 @@ class PhysicsWorld {
 			++index
 		}
 
-		// Use stored body positions and adaptive domain boundary:
-		const margin = 1 // fixes floating point errors from preventing body from being added to tree
+		// Use stored body positions and adaptive domain boundary
+		const margin = 1 // workaround for floating point errors preventing body from being added to tree
 		position.x -= margin
 		position.y -= margin
 		size.width = size.width - position.x + margin / 2
@@ -67,7 +67,10 @@ class PhysicsWorld {
 		const n = this.bodies.length
 		this.computationsPerIteration = n * Math.log(n)
 
+		let index = 0
+
 		for (const body of this.bodies) {
+			++index
 
 	      	const bodyPositionX = body.position.x,
 	      		bodyPositionY = body.position.y
@@ -90,19 +93,35 @@ class PhysicsWorld {
 							radiiSumSquare = radiiSum * radiiSum
 
 						if (radiiSumSquare > distanceSquare) {
-							if (body.collidable && node.body.collidable) 
+							if (body.collidable && node.body.collidable)
 								this.markAsIntersection(body, node.body)
 
 							return false
 						}
 					}
 
-					const distance = Math.sqrt(distanceSquare),
-						force = this.G * ((body.mass * node.mass) / distanceSquare),
-						forceByIteration = force / this.iterations
+					if (node.isPopulated || node.isSubdivided) { // this if condition is a quick test, might be breaking everything
+						const distance = Math.sqrt(distanceSquare),
+							force = this.G * ((body.mass * node.mass) / distanceSquare),
+							forceByIteration = force / this.iterations
 
-					body.velocity.dx += (forceByIteration / body.mass) * distanceX / distance
-					body.velocity.dy += (forceByIteration / body.mass) * distanceY / distance
+						body.velocity.dx += (forceByIteration / body.mass) * distanceX / distance
+						body.velocity.dy += (forceByIteration / body.mass) * distanceY / distance
+
+
+						if (index === 1) {
+							let color
+							const alpha = 0.25
+							if (node.isEndNode) {
+								color = `rgba(0, 128, 255, ${alpha})`
+							} else {
+								color = `rgba(255, 0, 0, ${alpha})`
+							}
+							const lineShape = new Line(body.position, node.centerOfMass, 2)
+							const graphics = new Graphics(color, body.position, lineShape)
+							this.debugRenderer.debugGraphics.push(graphics)
+						}
+					}
 
 					return false
 				} else return true
@@ -138,7 +157,7 @@ class PhysicsWorld {
 				}
 				break
 			case 2:
-				if (bodyA.contact !== bodyB.contact) { // no need to do anything if they're already in the same intersection
+				if (bodyA.contact !== bodyB.contact) {
 					const oldIndex = bodyB.contact
 					for (const bodyC of this.intersections[bodyB.contact]) {
 						this.intersections[bodyA.contact].push(bodyC)
@@ -162,11 +181,11 @@ class PhysicsWorld {
 						bodyB = buffer
 					}
 
-					bodyA.position.x = (bodyA.position.x * bodyA.mass + bodyB.position.x * bodyB.mass) / (bodyA.mass + bodyB.mass)
-					bodyA.position.y = (bodyA.position.y * bodyA.mass + bodyB.position.y * bodyB.mass) / (bodyA.mass + bodyB.mass)
+					bodyA.position.x = Utils.getWeightedAverage(bodyA.position.x, bodyA.mass, bodyB.position.x, bodyB.mass)
+					bodyA.position.y = Utils.getWeightedAverage(bodyA.position.y, bodyA.mass, bodyB.position.y, bodyB.mass)
 
-					bodyA.velocity.dx = (bodyA.velocity.dx * bodyA.mass + bodyB.velocity.dx * bodyB.mass) / (bodyA.mass + bodyB.mass)
-					bodyA.velocity.dy = (bodyA.velocity.dy * bodyA.mass + bodyB.velocity.dy * bodyB.mass) / (bodyA.mass + bodyB.mass)
+					bodyA.velocity.dx = Utils.getWeightedAverage(bodyA.velocity.dx, bodyA.mass, bodyB.velocity.dx, bodyB.mass)
+					bodyA.velocity.dy = Utils.getWeightedAverage(bodyA.velocity.dy, bodyA.mass, bodyB.velocity.dy, bodyB.mass)
 
 					bodyA.shape.volume += bodyB.shape.volume / bodyA.density
 
@@ -197,8 +216,7 @@ class PhysicsWorld {
 	}
 	step () {
 		for (let i = 0; i < this.iterations; ++i) {
-			
-			this.applyVelocityToPosition()
+			this.integrator()
 
 			this.createBarnesHutTree()
 			this.traverseTree()
