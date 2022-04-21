@@ -1,8 +1,10 @@
 class Circle extends Shape {
+	#radius
+	#area
 	constructor (radius) {
 		super()
 		
-		this._radius = radius
-		this._area = Math.PI * this.radius * this.radius
+		this.#radius = radius
+		this.#area = Math.PI * this.radius * this.radius
 	}
 }

@@ -1,4 +1,5 @@
 export default class PhysicsBody {
+	#destroyed = false
 	constructor (position, velocity, shape) {
 		this.position = position
 		this.pastPosition = position.copy()
@@ -7,7 +8,6 @@ export default class PhysicsBody {
 		this.shape = shape
 		this.density = 1
 		this.contact = null
-		this._destroyed = false
 		this.collidable = true
 
 		this.userData = {}
@@ -16,12 +16,12 @@ export default class PhysicsBody {
 		return this.shape.volume * this.density
 	}
 	set mass (kg) {
-		this.density = kg / this._volume 
+		this.density = kg / this.shape.volume // _volume???
 	}
 	get destroyed () {
-		return this._destroyed
+		return this.#destroyed
 	}
 	destroy () {
-		this._destroyed = true
+		this.#destroyed = true
 	}
 }
