@@ -4,13 +4,13 @@ let main = ((gameCanvasId, debugCanvasId, computationCounterId, fpsCounterId, ms
 	const gameCanvas = document.getElementById(gameCanvasId),
 		debugCanvas = document.getElementById(debugCanvasId)
 
-	const fitWindowSize = (...canvases) => {
+	const fitWindowSize = ((...canvases) => {
 		for (const canvas of canvases) {
 			canvas.width = innerWidth
 			canvas.height = innerHeight
 		}
-	}
-	fitWindowSize(gameCanvas)
+	})(gameCanvas)
+	
 	window.addEventListener("resize", _ => {
 		fitWindowSize(gameCanvas)
 	})
