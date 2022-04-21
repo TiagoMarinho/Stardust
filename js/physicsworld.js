@@ -1,6 +1,7 @@
-// WIP: Verlet Integration
+import Vector from "./vector.js"
+import { getWeightedAverage } from "./utils.js"
 
-class PhysicsWorld {
+export default class PhysicsWorld {
 
 	G = 0.01
 	iterations = 1
@@ -124,11 +125,11 @@ class PhysicsWorld {
 						bodyB = buffer
 					}
 
-					bodyA.position.x = Utils.getWeightedAverage(bodyA.position.x, bodyA.mass, bodyB.position.x, bodyB.mass)
-					bodyA.position.y = Utils.getWeightedAverage(bodyA.position.y, bodyA.mass, bodyB.position.y, bodyB.mass)
+					bodyA.position.x = getWeightedAverage(bodyA.position.x, bodyA.mass, bodyB.position.x, bodyB.mass)
+					bodyA.position.y = getWeightedAverage(bodyA.position.y, bodyA.mass, bodyB.position.y, bodyB.mass)
 
-					bodyA.velocity.x = Utils.getWeightedAverage(bodyA.velocity.x, bodyA.mass, bodyB.velocity.x, bodyB.mass)
-					bodyA.velocity.y = Utils.getWeightedAverage(bodyA.velocity.y, bodyA.mass, bodyB.velocity.y, bodyB.mass)
+					bodyA.velocity.x = getWeightedAverage(bodyA.velocity.x, bodyA.mass, bodyB.velocity.x, bodyB.mass)
+					bodyA.velocity.y = getWeightedAverage(bodyA.velocity.y, bodyA.mass, bodyB.velocity.y, bodyB.mass)
 
 					bodyA.shape.volume += bodyB.shape.volume / bodyA.density
 

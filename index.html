@@ -3,36 +3,7 @@
 <head>
 	<title>Stardust</title>
 	<meta charset="utf-8">
-
-	<script src="js/seedrandom.min.js"></script>
-	<script src="js/utils.js"></script>
-	<script src="js/performanceprofiler.js"></script>
-
-	<script src="js/point.js"></script>
-	<script src="js/size.js"></script>
-	<script src="js/vector.js"></script>
-	<script src="js/aabb.js"></script>
-
-	<script src="js/shape.js"></script>
-	<script src="js/circle.js"></script>
-	<script src="js/sphere.js"></script>
-	<script src="js/rect.js"></script>
-	<script src="js/line.js"></script>
-
-	<script src="js/graphics.js"></script>
-
-	<script src="js/barneshuttree.js"></script>
-	<script src="js/physicsbody.js"></script>
-	<script src="js/physicsworld.js"></script>
-
-	<script src="js/entity.js"></script>
-	<script src="js/planet.js"></script>
-
-	<script src="js/renderer.js"></script>
-	<script src="js/scene.js"></script>
-
-	<script src="js/engine.js"></script>
-	<script src="js/main.js"></script>
+	<script type="module" src="js/main.js"></script>
 
 	<link rel="stylesheet" type="text/css" href="css/styles.css">
 </head>
@@ -44,9 +15,5 @@
 	</div>
 
 	<canvas id="gameCanvas" width="550" height="400">Feature not supported</canvas>
-
-	<script>
-		main("gameCanvas", "debugCanvas", "computation-counter", "fps-counter", "ms-counter")
-	</script>
 </body>
 </html>

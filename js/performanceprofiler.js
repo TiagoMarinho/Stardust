@@ -1,15 +1,13 @@
-class PerformanceProfiler {
-	constructor () {
-		this.fps = 0
-		this.ms = 0
-		this._start = 0
-	}
+export default class PerformanceProfiler {
+	#start = 0
+	fps = 0
+	ms = 0
 	beginProfiling () {
-		this._start = performance.now()
+		this.#start = performance.now()
 	}
 	finishProfiling () {
 		const current = performance.now(),
-			delta = current - this._start
+			delta = current - this.#start
 
 		this.fps = 1000 / delta
 		this.ms = delta

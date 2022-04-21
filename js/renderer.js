@@ -1,4 +1,7 @@
-class Renderer {
+import Sphere from "./sphere.js"
+import Rect from "./rect.js"
+
+export default class Renderer {
 	constructor (context) {
 		this.context = context
 		this.graphics = []

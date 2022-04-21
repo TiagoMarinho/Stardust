@@ -1,4 +1,6 @@
-class Rect extends Shape {
+import Shape from "./shape.js"
+
+export default class Rect extends Shape {
 	constructor (size) {
 		super()
 

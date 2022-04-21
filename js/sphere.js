@@ -1,4 +1,6 @@
-class Sphere extends Shape {
+import Shape from "./shape.js"
+
+export default class Sphere extends Shape {
 		
 	#radius = null
 	#volume = null

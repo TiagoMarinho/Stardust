@@ -1,4 +1,4 @@
-class PhysicsBody {
+export default class PhysicsBody {
 	constructor (position, velocity, shape) {
 		this.position = position
 		this.pastPosition = position.copy()

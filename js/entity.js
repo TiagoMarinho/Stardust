@@ -1,4 +1,4 @@
-class Entity {
+export default class Entity {
 	constructor (graphics, physicsBody) {
 		this.graphics = graphics
 		this.physicsBody = physicsBody

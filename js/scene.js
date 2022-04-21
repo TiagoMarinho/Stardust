@@ -1,4 +1,9 @@
-class Scene {
+import Renderer from "./renderer.js"
+import PhysicsWorld from "./physicsworld.js"
+import Vector from "./vector.js"
+import Size from "./size.js"
+
+export default class Scene {
 	constructor (canvas) {
 		this.canvas = canvas
 		this.context = canvas.getContext("2d")
@@ -16,7 +21,7 @@ class Scene {
 		}
 	}
 	update () {
-		const canvasPosition = new Point(0, 0),
+		const canvasPosition = new Vector(0, 0),
 			canvasSize = new Size(this.canvas.width, this.canvas.height)
 
 		this.physicsWorld.step()

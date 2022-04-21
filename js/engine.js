@@ -1,4 +1,10 @@
-class Engine {
+import Scene from "./scene.js"
+import PerformanceProfiler from "./performanceprofiler.js"
+import {getRandomFloat} from "./utils.js"
+import Planet from "./planet.js"
+import Vector from "./vector.js"
+
+export default class Engine {
 	constructor (canvas) {
 		this.scene = new Scene(canvas)
 		this.darkThemePalette = ["#FF3658", "#FFD939", "#97FB32", "#32CEF4", "#FE60D6"]
@@ -8,7 +14,6 @@ class Engine {
 	run (overrideSeed) {
 		let seed = `${Math.random()}`
 		seed = overrideSeed ? overrideSeed : parseInt(seed.substr(2, seed.length))
-		Math.seedrandom(seed)
 		console.log(`seed: ${seed}`)
 
 		const testCases = {
@@ -64,8 +69,8 @@ class Engine {
 				const width = window.innerWidth,
 					height = window.innerHeight
 				for (let i = 0; i < n; ++i) {
-					const x = innerWidth / 2 + Utils.getRandomFloat(-width / 2, width / 2),
-					y = innerHeight / 2 + Utils.getRandomFloat(-height / 2, height / 2),
+					const x = innerWidth / 2 + getRandomFloat(-width / 2, width / 2),
+					y = innerHeight / 2 + getRandomFloat(-height / 2, height / 2),
 					color = this.palette[Math.floor(Math.random() * (this.palette.length - 1))]
 
 					const myPlanet = new Planet(color, new Vector(x, y), 2)

@@ -1,4 +1,6 @@
-let main = (gameCanvasId, debugCanvasId, computationCounterId, fpsCounterId, msCounterId) => {
+import Engine from "./engine.js"
+
+let main = ((gameCanvasId, debugCanvasId, computationCounterId, fpsCounterId, msCounterId) => {
 	const gameCanvas = document.getElementById(gameCanvasId),
 		debugCanvas = document.getElementById(debugCanvasId)
 
@@ -29,4 +31,4 @@ let main = (gameCanvasId, debugCanvasId, computationCounterId, fpsCounterId, msC
 			computation = app.scene.physicsWorld.computationsPerIteration
 		computationCounter.innerHTML = `${computation}cpi`
 	}, 1000 / 10)
-}
+})("gameCanvas", "debugCanvas", "computation-counter", "fps-counter", "ms-counter")
