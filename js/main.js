@@ -5,7 +5,7 @@ let main = ((gameCanvasId, debugCanvasId, computationCounterId, fpsCounterId, ms
 		debugCanvas = document.getElementById(debugCanvasId)
 
 	const fitWindowSize = (...canvases) => {
-		for (canvas of canvases) {
+		for (const canvas of canvases) {
 			canvas.width = innerWidth
 			canvas.height = innerHeight
 		}
