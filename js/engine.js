@@ -1,6 +1,6 @@
 import Scene from "./scene.js"
 import PerformanceProfiler from "./performanceprofiler.js"
-import {getRandomFloat} from "./utils.js"
+import {getRandomFloat} from "./utilities.js"
 import Planet from "./planet.js"
 import Vector from "./vector.js"
 

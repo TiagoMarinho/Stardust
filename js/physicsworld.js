@@ -1,5 +1,5 @@
 import Vector from "./vector.js"
-import { getWeightedAverage } from "./utils.js"
+import { getWeightedAverage } from "./utilities.js"
 
 export default class PhysicsWorld {
 
