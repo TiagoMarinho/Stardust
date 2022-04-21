@@ -15,37 +15,40 @@ class Engine {
 			simpleCollision: _ => {
 				const center = {x: innerWidth / 2, y: innerHeight / 2}
 
-				const bluePlanet = new Planet("#0cf", new Point(center.x - 500, center.y), 5)
+				const bluePlanet = new Planet("#0cf", new Vector(center.x - 500, center.y), 5)
 				this.scene.addChild(bluePlanet)
 
-				const pinkPlanet = new Planet("#f0c", new Point(center.x + 20, center.y), 200)
+				const pinkPlanet = new Planet("#f0c", new Vector(center.x + 20, center.y), 20)
 				this.scene.addChild(pinkPlanet)
 			},
 			simpleCollision2: _ => {
 				const center = {x: innerWidth / 2, y: innerHeight / 2}
 
-				const bluePlanet = new Planet("#0cf", new Point(center.x - 400, center.y), 5)
+				const bluePlanet = new Planet("#0cf", new Vector(center.x - 400, center.y), 5)
 				this.scene.addChild(bluePlanet)
 
-				const pinkPlanet = new Planet("#f0c", new Point(center.x, center.y), 3)
-				pinkPlanet.physicsBody.density = 10
+				const pinkPlanet = new Planet("#f0c", new Vector(center.x, center.y), 3)
+				pinkPlanet.physicsBody.density = 100
 				this.scene.addChild(pinkPlanet)
 
-				const greenPlanet = new Planet("#4d0", new Point(center.x - 800, center.y), 5)
+				const greenPlanet = new Planet("#4d0", new Vector(center.x + 400, center.y), 5)
 				this.scene.addChild(greenPlanet)
+
+				bluePlanet.physicsBody.velocity.y = -0.125
+				greenPlanet.physicsBody.velocity.y = 0.125
 			},
 			simpleOrbit: _ => {
 				const center = {x: innerWidth / 2, y: innerHeight / 2}
 
-				const bluePlanet = new Planet("#0cf", new Point(center.x - 50, center.y), 15)
+				const bluePlanet = new Planet("#0cf", new Vector(center.x - 50, center.y), 15)
 				this.scene.addChild(bluePlanet)
 
-				const pinkPlanet = new Planet("#f0c", new Point(center.x, center.y), 30)
+				const pinkPlanet = new Planet("#f0c", new Vector(center.x, center.y), 30)
 				this.scene.addChild(pinkPlanet)
 
 				const totalMass = bluePlanet.physicsBody.mass + pinkPlanet.physicsBody.mass
-				pinkPlanet.physicsBody.velocity.dy = 5 * -bluePlanet.physicsBody.mass / totalMass
-				bluePlanet.physicsBody.velocity.dy = 5 * pinkPlanet.physicsBody.mass / totalMass
+				pinkPlanet.physicsBody.velocity.y = 5 * -bluePlanet.physicsBody.mass / totalMass
+				bluePlanet.physicsBody.velocity.y = 5 * pinkPlanet.physicsBody.mass / totalMass
 			},
 			randomSimpleCollision: (n = 3) => {
 				for (let i = 0; i < n; ++i) {
@@ -53,7 +56,7 @@ class Engine {
 						y = Math.random() * 300,
 						color = this.palette[Math.floor(Math.random() * (this.palette.length - 1))]
 
-					const myPlanet = new Planet(color, new Point(x, y), Math.random() * 3 + 2)
+					const myPlanet = new Planet(color, new Vector(x, y), Math.random() * 3 + 2)
 					this.scene.addChild(myPlanet)
 				}
 			},
@@ -65,12 +68,12 @@ class Engine {
 					y = innerHeight / 2 + Utils.getRandomFloat(-height / 2, height / 2),
 					color = this.palette[Math.floor(Math.random() * (this.palette.length - 1))]
 
-					const myPlanet = new Planet(color, new Point(x, y), 2)
+					const myPlanet = new Planet(color, new Vector(x, y), 2)
 					this.scene.addChild(myPlanet)
 				}
 			},
 			coolOrbit: (n, radius) => {
-				const center = new Point(innerWidth / 2, innerHeight / 2),
+				const center = new Vector(innerWidth / 2, innerHeight / 2),
 					color = "#f00",
 					blackHole = new Planet(color, center, 2)
 
@@ -78,17 +81,17 @@ class Engine {
 				this.scene.addChild(blackHole)
 
 				for (let i = 0; i < n; ++i) {
-					const center = new Point(innerWidth / 2, innerHeight / 2),
+					const center = new Vector(innerWidth / 2, innerHeight / 2),
 						radians = Math.PI * 2 / n * i,
 						distance = radius * Math.sqrt(Math.random()),
 						x = center.x + distance * Math.sin(radians),
 						y = center.y + distance * Math.cos(radians),
 						speed = 1 / distance * 20,
 						color = this.palette[Math.floor(Math.random() * (this.palette.length - 1))],
-						planet = new Planet(color, new Point(x, y), 2)
+						planet = new Planet(color, new Vector(x, y), 2)
 
-					planet.physicsBody.velocity.dx = Math.sin(radians + Math.PI / 2) * speed
-					planet.physicsBody.velocity.dy = Math.cos(radians + Math.PI / 2) * speed
+					planet.physicsBody.velocity.x = Math.sin(radians + Math.PI / 2) * speed
+					planet.physicsBody.velocity.y = Math.cos(radians + Math.PI / 2) * speed
 
 					this.scene.addChild(planet)
 				}
@@ -97,7 +100,7 @@ class Engine {
 
 		//testCases.simpleCollision2()
 		//testCases.simpleOrbit()
-		testCases.randomCluster(3000)
+		testCases.randomCluster(500)
 		//testCases.randomSimpleCollision(10)
 		//testCases.coolOrbit(3000, 600)
 

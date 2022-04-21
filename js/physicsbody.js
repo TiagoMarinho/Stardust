@@ -3,6 +3,7 @@ class PhysicsBody {
 		this.position = position
 		this.pastPosition = position.copy()
 		this.velocity = velocity
+		this.acceleration = null
 		this.shape = shape
 		this.density = 1
 		this.contact = null

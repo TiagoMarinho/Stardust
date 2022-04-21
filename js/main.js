@@ -26,7 +26,7 @@ let main = (gameCanvasId, debugCanvasId, computationCounterId, fpsCounterId, msC
 		msCounter.innerHTML = `${ms}ms`
 
 		const computationCounter = document.getElementById(computationCounterId),
-			computation = Math.trunc(app.scene.physicsWorld.computationsPerIteration)
+			computation = app.scene.physicsWorld.computationsPerIteration
 		computationCounter.innerHTML = `${computation}cpi`
 	}, 1000 / 10)
 }
