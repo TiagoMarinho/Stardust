@@ -15,7 +15,7 @@ class PhysicsBody {
 		return this.shape.volume * this.density
 	}
 	set mass (kg) {
-		this.density = kg / this._volume 
+		this.density = kg / this.volume 
 	}
 	get destroyed () {
 		return this._destroyed

@@ -1,27 +1,80 @@
 class PhysicsWorld {
-	constructor (debugRenderer) {
-		this.G = 0.01
-		this.iterations = 1
-		this.bodies = []
-		this.intersections = []
-		this.garbage = []
-		this.barnesHutTree = null
-		this.theta = 0.75
-		this.computationsPerIteration = 0
-		this.debugRenderer = debugRenderer
-		this.adaptiveDomainBoundary = new AABB(new Point(0, 0), new Size(innerWidth, innerHeight))
-		this.enforceSquareNodes = false//true
-		this.useAdaptiveDomainBoundary = false//true
-	}
-	createBarnesHutTree () {
-		const position = new Point(0, 0),
-			size = new Size(window.innerWidth, window.innerHeight),
-			boundary = new AABB(position, size)
-		this.barnesHutTree = new BarnesHutTree(this.adaptiveDomainBoundary, this.debugRenderer)
 
-		for (let body of this.bodies) {
-			this.barnesHutTree.insert(body)
+	G = 0.01
+	iterations = 1
+	bodies = []
+	intersections = []
+	garbage = []
+	barnesHutTree = null
+	theta = 0.2
+	computationsPerIteration = 0
+	adaptiveDomainBoundary = new AABB(new Point(0, 0), new Size(innerWidth, innerHeight))
+	enforceSquareNodes = false
+	useAdaptiveDomainBoundary = false
+
+	isIntersecting (bodyA, bodyB) {
+		const distanceX = bodyB.position.x - bodyA.position.x,
+			distanceY = bodyB.position.y - bodyA.position.y,
+			distanceSquare = distanceX * distanceX + distanceY * distanceY,
+			radiusSum = bodyA.shape.radius + bodyB.shape.radius,
+			radiusSumSquare = radiusSum * radiusSum
+
+		return distanceSquare < radiusSumSquare
+	}
+	runOnceForEveryBodyPair (callback) {
+		let indexA = 0
+		for (const bodyA of this.bodies) {
+			for (let indexB = indexA + 1; indexB < this.bodies.length; ++indexB) {
+				const bodyB = this.bodies[indexB]
+
+				bodyA.userData.bodiesArrayIndex = indexA
+				bodyB.userData.bodiesArrayIndex = indexB
+
+				callback(bodyA, bodyB)
+			}
+			++indexA
 		}
+	}
+	applyGravityBetweenBodies (bodyA, bodyB) {
+
+		const distanceX = bodyB.position.x - bodyA.position.x,
+			distanceY = bodyB.position.y - bodyA.position.y,
+			distanceSquare = distanceX * distanceX + distanceY * distanceY,
+			distance = Math.sqrt(distanceSquare),
+			radiusSum = bodyA.shape.radius + bodyB.shape.radius,
+			radiusSumSquare = radiusSum * radiusSum,
+			normalizedMasses = {bodyA: bodyA.mass, bodyB: bodyB.mass},
+			isIntersecting = distance < radiusSum
+
+		if (isIntersecting) { // simpleOrbit test-case fails when the bodies intersect - loss of conservation of energy
+			this.markAsIntersection(bodyA, bodyB)
+
+			const collisionPoint = {
+				x: (bodyA.position.x * bodyA.mass + bodyB.position.x * bodyB.mass) / (bodyA.mass + bodyB.mass),
+				y: (bodyA.position.y * bodyA.mass + bodyB.position.y * bodyB.mass) / (bodyA.mass + bodyB.mass)
+			}
+			const normalizedRadius = {
+				bodyA: distance * (1 / (bodyA.mass + bodyB.mass) * bodyA.mass),
+				bodyB: distance * (1 / (bodyA.mass + bodyB.mass) * bodyB.mass)
+			}
+			const normalizedVolume = {
+				bodyA: 4 / 3 * Math.PI * (normalizedRadius.bodyA * normalizedRadius.bodyA * normalizedRadius.bodyA),
+				bodyB: 4 / 3 * Math.PI * (normalizedRadius.bodyB * normalizedRadius.bodyB * normalizedRadius.bodyB)
+			}
+
+			normalizedMasses.bodyA = normalizedVolume.bodyA * bodyA.density
+			normalizedMasses.bodyB = normalizedVolume.bodyB * bodyB.density
+		}
+
+		const force = this.G * ((normalizedMasses.bodyA * normalizedMasses.bodyB) / distanceSquare),
+			forceByIteration = force / this.iterations
+
+		bodyA.velocity.dx += (forceByIteration / normalizedMasses.bodyA) * distanceX / distance
+		bodyA.velocity.dy += (forceByIteration / normalizedMasses.bodyA) * distanceY / distance
+
+		bodyB.velocity.dx -= (forceByIteration / normalizedMasses.bodyB) * distanceX / distance
+		bodyB.velocity.dy -= (forceByIteration / normalizedMasses.bodyB) * distanceY / distance
+		
 	}
 	integrator () {
 		let index = 0
@@ -45,87 +98,6 @@ class PhysicsWorld {
 			size.height = Math.max(body.position.y, size.height)
 
 			++index
-		}
-
-		// Use stored body positions and adaptive domain boundary
-		const margin = 1 // workaround for floating point errors preventing body from being added to tree
-		position.x -= margin
-		position.y -= margin
-		size.width = size.width - position.x + margin / 2
-		size.height = size.height - position.y + margin / 2
-		if (this.enforceSquareNodes) {
-			size.width = Math.max(size.width, size.height)
-			size.height = Math.max(size.width, size.height)
-		}
-		if (this.useAdaptiveDomainBoundary)
-			this.adaptiveDomainBoundary = new AABB(position, size)
-	}
-	traverseTree () {
-    	const thetaSquare = this.theta * this.theta
-		this.computationsPerIteration = 0
-
-		const n = this.bodies.length
-		this.computationsPerIteration = n * Math.log(n)
-
-		let index = 0
-
-		for (const body of this.bodies) {
-			++index
-
-	      	const bodyPositionX = body.position.x,
-	      		bodyPositionY = body.position.y
-
-			this.barnesHutTree.forEachNode(node => {
-				const distanceX = node.centerOfMass.x - bodyPositionX,
-					distanceY = node.centerOfMass.y - bodyPositionY,
-					distanceSquare = distanceX * distanceX + distanceY * distanceY,
-					nodeBoundarySize = node.boundary.size,
-					maxNodeSideLengthSquare = (nodeBoundarySize.width > nodeBoundarySize.height ? 
-						nodeBoundarySize.squareWidth : nodeBoundarySize.squareHeight),
-					isNodeFarEnoughToApproximateAsSingleBody = maxNodeSideLengthSquare / distanceSquare < thetaSquare
-
-				if (isNodeFarEnoughToApproximateAsSingleBody || node.isEndNode) {
-
-					if (node.isEndNode && node.isPopulated) {
-						if (node.body === body) return false
-
-						const radiiSum = node.body.shape.radius + body.shape.radius,
-							radiiSumSquare = radiiSum * radiiSum
-
-						if (radiiSumSquare > distanceSquare) {
-							if (body.collidable && node.body.collidable)
-								this.markAsIntersection(body, node.body)
-
-							return false
-						}
-					}
-
-					if (node.isPopulated || node.isSubdivided) { // this if condition is a quick test, might be breaking everything
-						const distance = Math.sqrt(distanceSquare),
-							force = this.G * ((body.mass * node.mass) / distanceSquare),
-							forceByIteration = force / this.iterations
-
-						body.velocity.dx += (forceByIteration / body.mass) * distanceX / distance
-						body.velocity.dy += (forceByIteration / body.mass) * distanceY / distance
-
-
-						if (index === 1) {
-							let color
-							const alpha = 0.25
-							if (node.isEndNode) {
-								color = `rgba(0, 128, 255, ${alpha})`
-							} else {
-								color = `rgba(255, 0, 0, ${alpha})`
-							}
-							const lineShape = new Line(body.position, node.centerOfMass, 2)
-							const graphics = new Graphics(color, body.position, lineShape)
-							this.debugRenderer.debugGraphics.push(graphics)
-						}
-					}
-
-					return false
-				} else return true
-			})
 		}
 	}
 	markAsIntersection (bodyA, bodyB) {
@@ -218,8 +190,7 @@ class PhysicsWorld {
 		for (let i = 0; i < this.iterations; ++i) {
 			this.integrator()
 
-			this.createBarnesHutTree()
-			this.traverseTree()
+			this.runOnceForEveryBodyPair((bodyA, bodyB) => this.applyGravityBetweenBodies(bodyA, bodyB))
 
 			this.mergeIntersectingBodies()
 			this.collectGarbage()
