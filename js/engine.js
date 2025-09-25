@@ -6,10 +6,6 @@ class Engine {
 		this.profiler = new PerformanceProfiler()
 	}
 	run (overrideSeed) {
-		let seed = `${Math.random()}`
-		seed = overrideSeed ? overrideSeed : parseInt(seed.substr(2, seed.length))
-		Math.seedrandom(seed)
-		console.log(`seed: ${seed}`)
 
 		const testCases = {
 			simpleCollision: _ => {
